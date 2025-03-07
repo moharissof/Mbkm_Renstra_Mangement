@@ -33,6 +33,7 @@ export const updateSession = async (request: NextRequest) => {
     );
 
     // Get the current user session
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { data: { user }, error } = await supabase.auth.getUser();
     console.log("user", user);
     // Define protected routes
