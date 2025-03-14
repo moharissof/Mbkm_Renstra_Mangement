@@ -78,7 +78,7 @@ export default function LoginPage() {
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
             <div className="mb-4 flex justify-center">
-              <div className="rounded-full bg-purple-600 p-3">
+              <div className="rounded-full bg-primary p-3">
                 <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -136,7 +136,7 @@ export default function LoginPage() {
             </div>
             <Button
               type="submit"
-              className="h-12 w-full bg-purple-600 text-base font-semibold hover:bg-purple-700"
+              className="h-12 w-full bg-primary text-base font-semibold hover:bg-purple-700"
               disabled={isLoading}
             >
               {isLoading ? "Logging in..." : "Login"}
@@ -145,7 +145,7 @@ export default function LoginPage() {
 
           <div className="text-center text-sm">
             Don&apos;t have an account?{" "}
-            <Link href="/register" className="font-semibold text-purple-600 hover:text-purple-700">
+            <Link href="/register" className="font-semibold text-primary hover:text-purple-700">
               Create an account
             </Link>
           </div>

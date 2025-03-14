@@ -8,7 +8,7 @@ import type { RegisterData } from "@/types/auth"
 export async function POST(req: Request) {
   try {
     const body: RegisterData = await req.json()
-    const { nama, email, password, role, jabatanId } = body
+    const { name, email, password } = body
     const origin = (await headers()).get("origin");
 
     const supabase = createClient()
@@ -20,8 +20,7 @@ export async function POST(req: Request) {
       options: {
         emailRedirectTo: `${origin}/api/auth/callback`,
         data: {
-          nama,
-          role,
+          name,
         },
       },
     })
@@ -34,18 +33,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "User registration failed" }, { status: 400 })
     }
 
-    // Create user in Prisma database
-    const user = await prisma.user.create({
+    // Create user in Prisma database 
+    const users = await prisma.users.create({
       data: {
         id: authData.user.id,
-        nama,
+        name,
         email,
-        role,
-        jabatanId: jabatanId || null,
+        no_telp: "", // Add appropriate value for no_telp
+        password, // Assuming you want to store the same password
       },
     })
 
-    return NextResponse.json({ user }, { status: 201 })
+    return NextResponse.json({ users }, { status: 201 })
   } catch (error) {
     console.error("Registration error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })

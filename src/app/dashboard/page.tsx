@@ -1,7 +1,17 @@
-import React from 'react'
+import { DashboardContainer } from "@/components/dashboard/container"
+import { CustomersCard, MonthlyTargetCard, MonthlySalesCard, OrdersCard } from "@/components/dashboard/card"
+import { DashboardLayout } from "@/components/dashboard/_layout"
 
-export default function page() {
+export default function Page() {
   return (
-    <div>page</div>
+    <DashboardLayout>
+      <DashboardContainer>
+        <CustomersCard />
+        <OrdersCard />
+        <MonthlyTargetCard />
+        <MonthlySalesCard />
+      </DashboardContainer>
+    </DashboardLayout>
   )
 }
+
