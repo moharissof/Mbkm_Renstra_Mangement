@@ -36,6 +36,7 @@ export const updateSession = async (request: NextRequest) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { data: { user }, error } = await supabase.auth.getUser();
     console.log("user", user);
+
     // Define protected routes
   } catch (error) {
     console.error("Error in updateSession:", error);
