@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -47,11 +48,11 @@ export default function BidangPage() {
     };
 
     fetchBidang();
-  }, [toast]);
+  }, []);
 
   // Handle add bidang
-  const handleAddBidang = () => {
-    setSelectedBidang(null);
+    const handleAddBidang = () => {
+      setSelectedBidang(null);
     setMode("add");
     setBidangDialogOpen(true);
   };

@@ -1,13 +1,14 @@
 // app/api/bidang/[id]/route.ts
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { serializeBigInt } from "@/lib/prisma";
 
 const prisma = new PrismaClient();
 
 // PUT: Perbarui data bidang berdasarkan ID
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string} }
 ) {
   try {
     const { id } = params;
@@ -21,7 +22,7 @@ export async function PUT(
         { status: 400 }
       );
     }
-
+    
     // Perbarui bidang
     const updatedBidang = await prisma.bidang.update({
       where: { id: BigInt(id) },
@@ -30,8 +31,9 @@ export async function PUT(
         deskripsi,
       },
     });
+    const updatedBidangSerialize = serializeBigInt(updatedBidang);
 
-    return NextResponse.json(updatedBidang);
+    return NextResponse.json(updatedBidangSerialize);
   } catch (error) {
     console.error("Error updating bidang:", error);
     return NextResponse.json(

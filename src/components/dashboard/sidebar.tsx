@@ -16,6 +16,7 @@ import {
   Users,
   SquareUser,
   UserCog,
+  FolderClock,
   Network,
   ShieldUser
 } from "lucide-react"
@@ -45,12 +46,12 @@ const menuItems = [
     href: "/dashboard/bidang",
     roles: [Role.Admin], // Admin and management roles
   },
-  // {
-  //   title: "Products",
-  //   icon: Package,
-  //   href: "/products",
-  //   roles: [Role.Admin, Role.Kabag], // Only Admin and Kabag
-  // },
+  {
+    title: "Periode Renstra",
+    icon: FolderClock,
+    href: "/dashboard/periode",
+    roles: [Role.Admin, Role.Kabag], // Only Admin and Kabag
+  },
   {
     title: "Users",
     icon: ShieldUser,
