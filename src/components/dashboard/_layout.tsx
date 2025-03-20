@@ -1,20 +1,21 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { DashboardHeader } from "./header"
-import { DashboardSidebar } from "./sidebar"
-import type { ReactNode } from "react"
+import { useState, Suspense } from "react";
+import { DashboardHeader } from "./header";
+import { DashboardSidebar } from "./sidebar";
+import type { ReactNode } from "react";
+import { PageLoader } from "../ui/loader";
 
 interface DashboardLayoutProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen)
-  }
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   return (
     <div className="flex min-h-screen font-['Outfit']">
@@ -28,10 +29,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Mobile Sidebar */}
         {isMenuOpen && <DashboardSidebar isMobile isOpen={isMenuOpen} />}
 
-        {/* Content */}
-        {children}
+        <Suspense fallback={<PageLoader />}>{children}</Suspense>
       </div>
     </div>
-  )
+  );
 }
-
