@@ -78,7 +78,7 @@ export default function PositionsPage() {
       }
 
       if (filters.bidang) {
-        queryParams.append("bidang", filters.bidang); // Kirim bidang sebagai query parameter
+        queryParams.append("bidang", filters.bidang);
       }
 
       if (filters.parentId) {
@@ -254,9 +254,7 @@ export default function PositionsPage() {
     };
   }, []);
 
-  // Keep the filter effect separate
   useEffect(() => {
-    // Only apply filters after initial load and when filters change
     if (
       isMounted.current &&
       (filters.role || filters.bidang || filters.parentId)
@@ -464,12 +462,14 @@ export default function PositionsPage() {
 
           {/* Position Dialog */}
           <PositionDialog
-              isOpen={dialogOpen}
-              onClose={() => setDialogOpen(false)}
-              onSave={handleSavePosition}
-              position={selectedPosition}
-              mode={dialogMode}
-              allPositions={positions} bidangList={[]}          />
+            isOpen={dialogOpen}
+            onClose={() => setDialogOpen(false)}
+            onSave={handleSavePosition}
+            position={selectedPosition}
+            mode={dialogMode}
+            allPositions={positions}
+            bidangList={bidangList} // Pastikan bidangList diteruskan
+          />
         </DashboardLayout>
       )}
     </RoleGuard>

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { Pencil, Trash2, Users } from "lucide-react";
+import { Pencil, Trash2, Building2  } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
@@ -40,7 +40,7 @@ export const createPositionColumns = (
       return (
         <div className="flex items-center gap-3">
           <div className="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center">
-            <Users className="h-5 w-5 text-blue-600" />
+            <Building2 className="h-5 w-5" />
           </div>
           <div>
             <div className="font-medium">{position.nama}</div>
@@ -96,7 +96,7 @@ export const createPositionColumns = (
           className={
             bidang.nama === "SEMUA_BIDANG"
               ? "bg-blue-50 text-blue-600 hover:bg-blue-50 hover:text-blue-600"
-              : bidang.nama === "Bidang 1"
+              : bidang.nama === "BIDANG_1"
                 ? "bg-green-50 text-green-600 hover:bg-green-50 hover:text-green-600"
                 : "bg-yellow-50 text-yellow-600 hover:bg-yellow-50 hover:text-yellow-600"
           }

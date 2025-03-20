@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useToastStore } from "@/hooks/use-toast-store"
-import { Toast, ToastProvider, ToastTitle, ToastDescription } from "@/components/ui/toast"
+import { Toast, ToastProvider, ToastTitle, ToastDescription, ToastAction } from "@/components/ui/toast"
 import { ToastIcon } from "@/components/ui/toast-icon"
 
 export function ToastContainer() {
@@ -21,16 +21,14 @@ export function ToastContainer() {
   return (
     <ToastProvider>
       {toasts.map((toast) => (
-        <Toast
-          key={toast.id}
-          variant={toast.variant}
-          onClose={() => removeToast(toast.id)}
-          className="flex items-start gap-3"
-        >
-          <ToastIcon variant={toast.variant} />
-          <div className="flex-1">
-            {toast.title && <ToastTitle>{toast.title}</ToastTitle>}
-            {toast.description && <ToastDescription>{toast.description}</ToastDescription>}
+        <Toast key={toast.id} variant={toast.variant} onClose={() => removeToast(toast.id)}>
+          <div className="flex items-start gap-3">
+            <ToastIcon variant={toast.variant} />
+            <div className="flex-1">
+              {toast.title && <ToastTitle>{toast.title}</ToastTitle>}
+              {toast.description && <ToastDescription>{toast.description}</ToastDescription>}
+              {toast.action && <ToastAction href={toast.action.href}>{toast.action.label}</ToastAction>}
+            </div>
           </div>
         </Toast>
       ))}

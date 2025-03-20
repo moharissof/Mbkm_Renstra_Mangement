@@ -3,12 +3,19 @@ import { v4 as uuidv4 } from "uuid"
 
 export type ToastVariant = "default" | "success" | "destructive" | "warning" | "info"
 
+export type ToastAction = {
+  label: string
+  href?: string
+  onClick?: () => void
+}
+
 export type Toast = {
   id: string
   title?: string
   description?: string
   variant?: ToastVariant
   duration?: number
+  action?: ToastAction
 }
 
 type ToastStore = {
@@ -31,6 +38,7 @@ export const useToastStore = create<ToastStore>((set) => ({
           description: toast.description,
           variant: toast.variant || "default",
           duration: toast.duration || 5000,
+          action: toast.action,
         },
       ],
     }))

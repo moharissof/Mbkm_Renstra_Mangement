@@ -4,6 +4,7 @@ import { prisma, serializeBigInt } from "@/lib/prisma";
 
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
     try {
+      
       const body = await request.json();
       const updatedPeriodeRenstra = await prisma.periode_renstra.update({
         where: { id: BigInt(params.id) },

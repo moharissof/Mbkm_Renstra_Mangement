@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { type PeriodeRenstra } from "@/types/renstra";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface PeriodeRenstraDialogProps {
   isOpen: boolean;
@@ -35,6 +36,7 @@ export function PeriodeRenstraDialog({
     nama: "",
     tahun_awal: 0,
     tahun_akhir: 0,
+    status: "Aktif", // Default status
   });
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
@@ -46,12 +48,14 @@ export function PeriodeRenstraDialog({
         nama: periodeRenstra.nama,
         tahun_awal: periodeRenstra.tahun_awal,
         tahun_akhir: periodeRenstra.tahun_akhir,
+        status: periodeRenstra.status,
       });
     } else {
       setFormData({
         nama: "",
         tahun_awal: 0,
         tahun_akhir: 0,
+        status: "Aktif", // Reset status to default
       });
     }
   }, [periodeRenstra, mode, isOpen]);
@@ -63,11 +67,27 @@ export function PeriodeRenstraDialog({
     }));
   };
 
+  const handleStatusChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      status: value as "Aktif" | "Diarsipkan", // Ensure the value is one of the enum values
+    }));
+  };
+
   const handleSubmit = async () => {
     if (!formData.nama || !formData.tahun_awal || !formData.tahun_akhir) {
       toast({
         title: "Data tidak lengkap",
         description: "Silakan lengkapi semua field",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (formData.tahun_akhir < formData.tahun_awal) {
+      toast({
+        title: "Tahun tidak valid",
+        description: "Tahun akhir harus lebih besar atau sama dengan tahun awal",
         variant: "destructive",
       });
       return;
@@ -91,7 +111,7 @@ export function PeriodeRenstraDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] font-outfit">
         <DialogHeader>
           <DialogTitle>{mode === "add" ? "Tambah Periode Renstra Baru" : "Edit Periode Renstra"}</DialogTitle>
           <DialogDescription>
@@ -141,6 +161,21 @@ export function PeriodeRenstraDialog({
               className="col-span-3"
               placeholder="Masukkan tahun akhir"
             />
+          </div>
+
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="status" className="text-right">
+              Status <span className="text-red-500">*</span>
+            </Label>
+            <Select value={formData.status} onValueChange={handleStatusChange}>
+              <SelectTrigger className="col-span-3">
+                <SelectValue placeholder="Pilih status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Aktif">Aktif</SelectItem>
+                <SelectItem value="Diarsipkan">Diarsipkan</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

@@ -4,7 +4,7 @@ import { Role } from "@/types/user"
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
-    const id = params.id
+    const id = await params.id
 
     // Find position by ID with parent and children
     const position = await prisma.jabatan.findUnique({
@@ -29,18 +29,11 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(request: Request) {
+export async function PUT(request: Request , { params }: { params: { id: string } }) {
   try {
+
+    const id =  await params.id
     const body = await request.json();
-
-    // Validate required fields
-    if (!body.id || !body.nama || !body.role || !body.bidang_id) {
-      return NextResponse.json(
-        { error: "Missing required fields: id, nama, role, bidang_id" },
-        { status: 400 }
-      );
-    }
-
     // Validate role
     if (!Object.values(Role).includes(body.role)) {
       return NextResponse.json(
@@ -55,7 +48,7 @@ export async function PUT(request: Request) {
 
     // Update jabatan
     const updatedJabatan = await prisma.jabatan.update({
-      where: { id: BigInt(body.id) },
+      where: { id: BigInt(id) },
       data: {
         nama: body.nama,
         deskripsi: body.deskripsi || null,

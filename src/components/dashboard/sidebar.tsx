@@ -75,7 +75,7 @@ const menuItems = [
   //   roles: [Role.Admin, Role.Ketua, Role.Waket_1, Role.Waket_2, Role.Kabag, Role.Staff_Kabag], // All roles can access
   // },
   {
-    title: "Charts",
+    title: "Setting",
     icon: BarChart3,
     href: "#",
     submenu: [
