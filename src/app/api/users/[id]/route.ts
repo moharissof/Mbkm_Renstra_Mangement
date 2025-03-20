@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextResponse } from "next/server"
-import prisma from "@/lib/prisma"
+import prisma, { serializeBigInt } from "@/lib/prisma"
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -25,7 +25,10 @@ export async function GET(request: Request, { params }: { params: { id: string }
     // Remove password from response
     const { password, ...userWithoutPassword } = user
 
-    return NextResponse.json(userWithoutPassword)
+    // Serialize BigInt values before sending the response
+    const serializedUser = serializeBigInt(userWithoutPassword)
+
+    return NextResponse.json(serializedUser)
   } catch (error) {
     console.error("Error fetching user:", error)
     return NextResponse.json({ error: "Failed to fetch user" }, { status: 500 })
@@ -90,7 +93,10 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     // Remove password from response
     const { password, ...userWithoutPassword } = updatedUser
 
-    return NextResponse.json(userWithoutPassword)
+    // Serialize BigInt values before sending the response
+    const serializedUser = serializeBigInt(userWithoutPassword)
+
+    return NextResponse.json(serializedUser)
   } catch (error) {
     console.error("Error updating user:", error)
     return NextResponse.json({ error: "Failed to update user" }, { status: 500 })

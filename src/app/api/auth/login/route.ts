@@ -1,42 +1,87 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { prisma } from "@/lib/prisma";
-import { LoginData } from "@/types/auth";
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    const body: LoginData = await req.json();
+    const body = await request.json();
     const { email, password } = body;
 
+    // Validate input
+    if (!email || !password) {
+      return NextResponse.json(
+        { error: "Email and password are required" },
+        { status: 400 }
+      );
+    }
+
+    // Create a Supabase client
     const supabase = createClient();
 
-    // Authenticate user with Supabase Auth
-    const { data: authData, error: authError } = await (await supabase).auth.signInWithPassword({
+    // Sign in with Supabase
+    const { data, error } = await (await supabase).auth.signInWithPassword({
       email,
       password,
     });
 
-    if (authError) {
-      return NextResponse.json({ error: authError.message }, { status: 400 });
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
     }
 
-    if (!authData.user) {
-      return NextResponse.json({ error: "Login failed" }, { status: 400 });
+    // Debug: Cetak email dari Supabase Auth
+    console.log("Supabase Auth user email:", data.user.email);
+
+    // Check if user is verified in your database
+    const { data: userData, error: userError } = await (await supabase)
+      .from("users")
+      .select(`
+        *,
+        jabatan:jabatan_id (
+          *,
+          parent:parent_id (*),
+          bidang:bidang_id (*)
+        )
+      `)
+      .eq("email", data.user.email) // Cari berdasarkan email
+      .single();
+
+    // Debug: Cetak hasil query Supabase
+    console.log("User data from Supabase:", userData);
+    console.log("Supabase query error:", userError);
+
+    if (userError) {
+      console.error("Supabase query error:", userError);
+      return NextResponse.json({ error: "User data not found" }, { status: 404 });
     }
 
-    // Fetch user data from Prisma database
-    const user = await prisma.user.findUnique({
-      where: { id: authData.user.id },
-      include: { jabatan: true },
+    if (!userData) {
+      console.error("User data not found for email:", data.user.email);
+      return NextResponse.json({ error: "User data not found" }, { status: 404 });
+    }
+
+    // Check if user is verified
+    if (!userData.isVerified) {
+      return NextResponse.json(
+        { error: "Akunmu Belum Disetujui Oleh Admin" },
+        { status: 403 }
+      );
+    }
+
+    // Update last login time
+    await (await supabase)
+      .from("users")
+      .update({ last_login_at: new Date().toISOString() })
+      .eq("id", userData.id);
+
+    console.log("User logged in:", data.session);
+    return NextResponse.json({
+      user: userData,
+      session: data.session,
     });
-
-    if (!user) {
-      return NextResponse.json({ error: "User not found in database" }, { status: 404 });
-    }
-
-    return NextResponse.json({ user, session: authData.session }, { status: 200 });
   } catch (error) {
     console.error("Login error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "An error occurred during login" },
+      { status: 500 }
+    );
   }
-}
+} 

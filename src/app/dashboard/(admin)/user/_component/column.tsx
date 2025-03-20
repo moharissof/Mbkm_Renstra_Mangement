@@ -9,7 +9,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { type User, Role } from "@/types/user"
 
 // This is a factory function to create columns with the verify action
-export const createUserColumns = (onVerify: (user: User) => void): ColumnDef<User>[] => [
+export const createUserColumns = (
+  onVerify: (user: User) => void,
+  onEdit: (user: User) => void,
+  onDelete: (user: User) => void,
+): ColumnDef<User>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -58,7 +62,6 @@ export const createUserColumns = (onVerify: (user: User) => void): ColumnDef<Use
   {
     accessorKey: "no_telp",
     header: "No. Telepon",
-    cell: ({ row }) => <div>{row.getValue("no_telp") || "-"}</div>,
   },
   {
     id: "jabatan",
@@ -133,10 +136,10 @@ export const createUserColumns = (onVerify: (user: User) => void): ColumnDef<Use
               <CheckCircle className="h-4 w-4" />
             </Button>
           )}
-          <Button variant="ghost" size="icon" className="h-8 w-8">
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(user)}>
             <Pencil className="h-4 w-4 text-gray-500" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onDelete(user)}>
             <Trash2 className="h-4 w-4 text-gray-500" />
           </Button>
         </div>

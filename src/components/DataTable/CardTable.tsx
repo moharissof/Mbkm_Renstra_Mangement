@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Download, Search } from "lucide-react"
+import { Download, Search, Loader2 } from "lucide-react"
 import { useState } from "react"
 
 interface DataTableCardProps<TData, TValue> {
@@ -29,6 +29,7 @@ interface DataTableCardProps<TData, TValue> {
   filterColumn?: string
   pageSize?: number
   extraActions?: ReactNode
+  isLoading?: boolean
 }
 
 export function DataTableCard<TData, TValue>({
@@ -40,6 +41,7 @@ export function DataTableCard<TData, TValue>({
   searchPlaceholder = "Search...",
   pageSize: initialPageSize = 5,
   extraActions,
+  isLoading = false,
 }: DataTableCardProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -85,6 +87,7 @@ export function DataTableCard<TData, TValue>({
                 setPageSize(Number(value))
                 table.setPageSize(Number(value))
               }}
+              disabled={isLoading}
             >
               <SelectTrigger className="w-[70px]">
                 <SelectValue placeholder={pageSize.toString()} />
@@ -106,12 +109,13 @@ export function DataTableCard<TData, TValue>({
                 value={(table.getColumn(searchColumn)?.getFilterValue() as string) ?? ""}
                 onChange={(event) => table.getColumn(searchColumn)?.setFilterValue(event.target.value)}
                 className="pl-9 w-full sm:w-[250px]"
+                disabled={isLoading}
               />
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                 <Search className="h-4 w-4" />
               </div>
             </div>
-            <Button variant="outline" size="icon" className="h-10 w-10">
+            <Button variant="outline" size="icon" className="h-10 w-10" disabled={isLoading}>
               <Download className="h-4 w-4" />
             </Button>
             {extraActions}
@@ -136,7 +140,16 @@ export function DataTableCard<TData, TValue>({
               ))}
             </TableHeader>
             <TableBody>
-              {table.getRowModel().rows?.length ? (
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                    <div className="flex justify-center items-center">
+                      <Loader2 className="h-6 w-6 animate-spin text-primary mr-2" />
+                      <span>Memuat data...</span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
@@ -151,7 +164,7 @@ export function DataTableCard<TData, TValue>({
               ) : (
                 <TableRow>
                   <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No results.
+                    {data.length === 0 ? "Tidak ada data." : "Tidak ada hasil yang cocok dengan pencarian."}
                   </TableCell>
                 </TableRow>
               )}
@@ -171,7 +184,7 @@ export function DataTableCard<TData, TValue>({
             variant="outline"
             size="sm"
             onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            disabled={!table.getCanPreviousPage() || isLoading}
             className="h-9"
           >
             Previous
@@ -197,6 +210,7 @@ export function DataTableCard<TData, TValue>({
                 variant={table.getState().pagination.pageIndex === pageNumber ? "default" : "outline"}
                 size="sm"
                 onClick={() => table.setPageIndex(pageNumber)}
+                disabled={isLoading}
                 className="h-9 w-9"
               >
                 {pageNumber + 1}
@@ -207,7 +221,7 @@ export function DataTableCard<TData, TValue>({
             variant="outline"
             size="sm"
             onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            disabled={!table.getCanNextPage() || isLoading}
             className="h-9"
           >
             Next

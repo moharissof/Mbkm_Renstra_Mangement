@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   BarChart3,
   Calendar,
@@ -13,10 +14,76 @@ import {
   Table2,
   User,
   Users,
+  SquareUser,
+  UserCog,
+  Network,
+  ShieldUser
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { Role } from "@/types/user"
+
+
+// Define menu items with role-based access
+const menuItems = [
+  {
+    title: "Dashboard",
+    icon: LayoutDashboard,
+    href: "/dashboard",
+    roles: [Role.Admin, Role.Ketua, Role.Waket_1, Role.Waket_2, Role.Kabag, Role.Staff_Kabag], // All roles can access
+  },
+  // {
+  //   title: "Calendar",
+  //   icon: Calendar,
+  //   href: "/calendar",
+  //   roles: [Role.Admin, Role.Ketua, Role.Waket_1, Role.Waket_2, Role.Kabag, Role.Staff_Kabag], // All roles can access
+  // },
+  {
+    title: "Bidang",
+    icon: SquareUser,
+    href: "/dashboard/bidang",
+    roles: [Role.Admin], // Admin and management roles
+  },
+  // {
+  //   title: "Products",
+  //   icon: Package,
+  //   href: "/products",
+  //   roles: [Role.Admin, Role.Kabag], // Only Admin and Kabag
+  // },
+  {
+    title: "Users",
+    icon: ShieldUser,
+    href: "/dashboard/user",
+    roles: [Role.Admin], // Only Admin can manage users
+  },
+  {
+    title: "Jabatan",
+    icon: Network,
+    href: "/dashboard/jabatan",
+    roles: [Role.Admin], // Only Admin can manage positions
+  },
+  // {
+  //   title: "Pages",
+  //   icon: FileText,
+  //   href: "#",
+  //   submenu: [
+  //     { title: "Settings", href: "/settings" },
+  //     { title: "Profile", href: "/profile" },
+  //   ],
+  //   roles: [Role.Admin, Role.Ketua, Role.Waket_1, Role.Waket_2, Role.Kabag, Role.Staff_Kabag], // All roles can access
+  // },
+  {
+    title: "Charts",
+    icon: BarChart3,
+    href: "#",
+    submenu: [
+      { title: "Bar Charts", href: "/charts/bar" },
+      { title: "Line Charts", href: "/charts/line" },
+    ],
+    roles: [Role.Admin, Role.Ketua, Role.Waket_1, Role.Waket_2], // Admin and management roles
+  },
+]
 
 interface DashboardSidebarProps {
   isOpen?: boolean
@@ -25,15 +92,35 @@ interface DashboardSidebarProps {
 
 export function DashboardSidebar({ isOpen = true, isMobile = false }: DashboardSidebarProps) {
   const pathname = usePathname()
+  const [userRole, setUserRole] = useState<Role | null>(null)
+  const [loading, setLoading] = useState(true)
 
   // State to track which dropdown menus are open
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
     dashboard: true, // Dashboard menu starts open
-    forms: false,
-    tables: false,
-    pages: false,
-    charts: false,
   })
+
+  // Fetch user role on component mount
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const response = await fetch("/api/auth/role", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+        const { role } = await response.json()
+        setUserRole(role)
+      } catch (error) {
+        console.error("Error fetching user role:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchUserRole()
+  }, [])
 
   // Toggle a dropdown menu
   const toggleMenu = (menu: string) => {
@@ -46,225 +133,79 @@ export function DashboardSidebar({ isOpen = true, isMobile = false }: DashboardS
   // If it's mobile and not open, don't render
   if (isMobile && !isOpen) return null
 
+  // Filter menu items based on user role
+  const filteredMenuItems = menuItems.filter((item) => {
+    // If no user role or no roles specified for the item, don't show it
+    if (!userRole) return false
+
+    // Show the item if the user's role is in the item's allowed roles
+    return item.roles.includes(userRole)
+  })
+
+  const renderMenuItem = (item: (typeof menuItems)[0]) => {
+    const isActive = pathname === item.href
+    const hasSubmenu = item.submenu && item.submenu.length > 0
+    const isSubmenuOpen = openMenus[item.title.toLowerCase()]
+
+    if (hasSubmenu) {
+      return (
+        <div key={item.title}>
+          <Button
+            variant="ghost"
+            className={`w-full justify-start gap-2 py-2.5 px-3 text-base font-normal h-auto ${
+              isActive ? "bg-blue-50/50 text-blue-600" : "text-gray-600"
+            }`}
+            onClick={() => toggleMenu(item.title.toLowerCase())}
+          >
+            <item.icon className="h-5 w-5" />
+            {item.title}
+            {isSubmenuOpen ? <ChevronUp className="h-4 w-4 ml-auto" /> : <ChevronDown className="h-4 w-4 ml-auto" />}
+          </Button>
+
+          {isSubmenuOpen && item.submenu && (
+            <div className="pl-12">
+              {item.submenu.map((subItem) => (
+                <Button
+                  key={subItem.title}
+                  variant="ghost"
+                  className={`w-full justify-start text-gray-600 hover:bg-blue-50 hover:text-blue-600 py-2.5 text-base font-normal h-auto ${
+                    pathname === subItem.href ? "bg-blue-50/50 text-blue-600" : ""
+                  }`}
+                  asChild
+                >
+                  <Link href={subItem.href}>{subItem.title}</Link>
+                </Button>
+              ))}
+            </div>
+          )}
+        </div>
+      )
+    }
+
+    return (
+      <Button
+        key={item.title}
+        variant="ghost"
+        className={`w-full justify-start gap-2 py-2.5 px-3 text-base font-normal h-auto ${
+          pathname === item.href ? "bg-blue-50/50 text-blue-600" : "text-gray-600"
+        }`}
+        asChild
+      >
+        <Link href={item.href}>
+          <item.icon className="h-5 w-5" />
+          {item.title}
+        </Link>
+      </Button>
+    )
+  }
+
+
   const sidebarContent = (
     <div className="space-y-2">
       <div className="mb-4 text-xs uppercase flex leading-[20px] text-gray-400 font-normal">MENU</div>
 
-      {/* Dashboard Menu */}
-      <div>
-        <Button
-          variant="ghost"
-          className={`w-full justify-start gap-2 py-2.5 px-3 text-base font-normal h-auto ${
-            pathname === "/" ? "bg-blue-50/50 text-blue-600" : "text-gray-600"
-          }`}
-          onClick={() => toggleMenu("dashboard")}
-        >
-          <LayoutDashboard className="h-5 w-5" />
-          Dashboard
-          {openMenus.dashboard ? (
-            <ChevronUp className="h-4 w-4 ml-auto" />
-          ) : (
-            <ChevronDown className="h-4 w-4 ml-auto" />
-          )}
-        </Button>
-
-        {openMenus.dashboard && (
-          <div className="pl-12">
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-gray-600 hover:bg-blue-50 hover:text-blue-600 py-2.5 text-base font-normal h-auto"
-              asChild
-            >
-              <Link href="/">Ecommerce</Link>
-            </Button>
-          </div>
-        )}
-      </div>
-
-      <Button
-        variant="ghost"
-        className="w-full justify-start gap-2 py-2.5 px-3 text-gray-600 text-base font-normal h-auto"
-      >
-        <Calendar className="h-5 w-5" />
-        Calendar
-      </Button>
-
-      <Button
-        variant="ghost"
-        className={`w-full justify-start gap-2 py-2.5 px-3 text-base font-normal h-auto ${
-          pathname === "/employees" ? "bg-blue-50/50 text-blue-600" : "text-gray-600"
-        }`}
-        asChild
-      >
-        <Link href="/employees">
-          <Users className="h-5 w-5" />
-          Employees
-        </Link>
-      </Button>
-
-      <Button
-        variant="ghost"
-        className={`w-full justify-start gap-2 py-2.5 px-3 text-base font-normal h-auto ${
-          pathname === "/products" ? "bg-blue-50/50 text-blue-600" : "text-gray-600"
-        }`}
-        asChild
-      >
-        <Link href="/products">
-          <Package className="h-5 w-5" />
-          Products
-        </Link>
-      </Button>
-
-      <Button
-        variant="ghost"
-        className={`w-full justify-start gap-2 py-2.5 px-3 text-base font-normal h-auto ${
-          pathname === "/users" ? "bg-blue-50/50 text-blue-600" : "text-gray-600"
-        }`}
-        asChild
-      >
-        <Link href="/users">
-          <Users className="h-5 w-5" />
-          Users
-        </Link>
-      </Button>
-
-      <Button
-        variant="ghost"
-        className="w-full justify-start gap-2 py-2.5 px-3 text-gray-600 text-base font-normal h-auto"
-      >
-        <ShoppingCart className="h-5 w-5" />
-        Orders
-      </Button>
-
-      <Button
-        variant="ghost"
-        className="w-full justify-start gap-2 py-2.5 px-3 text-gray-600 text-base font-normal h-auto"
-      >
-        <User className="h-5 w-5" />
-        User Profile
-      </Button>
-
-      {/* Forms Menu */}
-      <div>
-        <Button
-          variant="ghost"
-          className="w-full justify-start gap-2 py-2.5 px-3 text-gray-600 text-base font-normal h-auto"
-          onClick={() => toggleMenu("forms")}
-        >
-          <FileText className="h-5 w-5" />
-          Forms
-          {openMenus.forms ? <ChevronUp className="h-4 w-4 ml-auto" /> : <ChevronDown className="h-4 w-4 ml-auto" />}
-        </Button>
-
-        {openMenus.forms && (
-          <div className="pl-12 space-y-1">
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-gray-600 hover:bg-blue-50 hover:text-blue-600 py-2.5 text-base font-normal h-auto"
-            >
-              Form Elements
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-gray-600 hover:bg-blue-50 hover:text-blue-600 py-2.5 text-base font-normal h-auto"
-            >
-              Form Layout
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {/* Tables Menu */}
-      <div>
-        <Button
-          variant="ghost"
-          className="w-full justify-start gap-2 py-2.5 px-3 text-gray-600 text-base font-normal h-auto"
-          onClick={() => toggleMenu("tables")}
-        >
-          <Table2 className="h-5 w-5" />
-          Tables
-          {openMenus.tables ? <ChevronUp className="h-4 w-4 ml-auto" /> : <ChevronDown className="h-4 w-4 ml-auto" />}
-        </Button>
-
-        {openMenus.tables && (
-          <div className="pl-12 space-y-1">
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-gray-600 hover:bg-blue-50 hover:text-blue-600 py-2.5 text-base font-normal h-auto"
-            >
-              Basic Tables
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-gray-600 hover:bg-blue-50 hover:text-blue-600 py-2.5 text-base font-normal h-auto"
-            >
-              Data Tables
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {/* Pages Menu */}
-      <div>
-        <Button
-          variant="ghost"
-          className="w-full justify-start gap-2 py-2.5 px-3 text-gray-600 text-base font-normal h-auto"
-          onClick={() => toggleMenu("pages")}
-        >
-          <FileText className="h-5 w-5" />
-          Pages
-          {openMenus.pages ? <ChevronUp className="h-4 w-4 ml-auto" /> : <ChevronDown className="h-4 w-4 ml-auto" />}
-        </Button>
-
-        {openMenus.pages && (
-          <div className="pl-12 space-y-1">
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-gray-600 hover:bg-blue-50 hover:text-blue-600 py-2.5 text-base font-normal h-auto"
-            >
-              Settings
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-gray-600 hover:bg-blue-50 hover:text-blue-600 py-2.5 text-base font-normal h-auto"
-            >
-              Profile
-            </Button>
-          </div>
-        )}
-      </div>
-
-      <div className="mb-4 text-xs uppercase flex leading-[20px] text-gray-400 font-normal mt-6">OTHERS</div>
-
-      {/* Charts Menu */}
-      <div>
-        <Button
-          variant="ghost"
-          className="w-full justify-start gap-2 py-2.5 px-3 text-gray-600 text-base font-normal h-auto"
-          onClick={() => toggleMenu("charts")}
-        >
-          <BarChart3 className="h-5 w-5" />
-          Charts
-          {openMenus.charts ? <ChevronUp className="h-4 w-4 ml-auto" /> : <ChevronDown className="h-4 w-4 ml-auto" />}
-        </Button>
-
-        {openMenus.charts && (
-          <div className="pl-12 space-y-1">
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-gray-600 hover:bg-blue-50 hover:text-blue-600 py-2.5 text-base font-normal h-auto"
-            >
-              Bar Charts
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-gray-600 hover:bg-blue-50 hover:text-blue-600 py-2.5 text-base font-normal h-auto"
-            >
-              Line Charts
-            </Button>
-          </div>
-        )}
-      </div>
+      {/* Render menu items based on user role */}
+      {filteredMenuItems.map(renderMenuItem)}
     </div>
   )
 
@@ -276,15 +217,14 @@ export function DashboardSidebar({ isOpen = true, isMobile = false }: DashboardS
   // Desktop sidebar
   return (
     <div className="w-[280px] border-r bg-white px-6 py-7 hidden md:block">
-      <div className="flex items-center gap-3 mb-14">
+      <div className="flex items-center gap-3 mb-10">
         <div className="h-[36px] w-[36px] rounded-lg bg-blue-600 flex items-center justify-center">
           <BarChart3 className="h-[22px] w-[22px] text-white" />
         </div>
-        <h1 className="text-2xl font-semibold">TailAdmin</h1>
+        <h1 className="text-2xl font-semibold">E- Renstra</h1>
       </div>
 
-      <div className="space-y-7">{sidebarContent}</div>
+      <div className="space-y-6">{sidebarContent}</div>
     </div>
   )
 }
-
