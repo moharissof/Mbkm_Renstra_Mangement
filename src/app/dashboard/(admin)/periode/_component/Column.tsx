@@ -4,6 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge"; // Import komponen Badge
 import { type PeriodeRenstra } from "@/types/renstra";
 
 export const createPeriodeRenstraColumns = (
@@ -45,6 +46,15 @@ export const createPeriodeRenstraColumns = (
     accessorKey: "tahun_akhir",
     header: "Tahun Akhir",
     cell: ({ row }) => <div>{row.getValue("tahun_akhir")}</div>,
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => {
+      const status = row.getValue("status") as string;
+      const badgeVariant = status === "Aktif" ? "default" : "secondary"; // Sesuaikan variant badge berdasarkan status
+      return <Badge variant={badgeVariant}>{status}</Badge>;
+    },
   },
   {
     id: "actions",

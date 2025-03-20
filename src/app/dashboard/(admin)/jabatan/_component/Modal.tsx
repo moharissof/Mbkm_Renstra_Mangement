@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react"
 import {
   Dialog,
   DialogContent,
@@ -8,24 +8,24 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
-import { type Jabatan, Role, type Bidang } from "@/types/user";
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useToast } from "@/hooks/use-toast"
+import { Loader2 } from "lucide-react"
+import { type Jabatan, Role, type Bidang } from "@/types/user"
 
 interface PositionDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSave: (formData: Partial<Jabatan>) => Promise<void>;
-  position: Jabatan | null;
-  mode: "add" | "edit";
-  allPositions: Jabatan[];
-  bidangList: Bidang[];
+  isOpen: boolean
+  onClose: () => void
+  onSave: (formData: Partial<Jabatan>) => Promise<void>
+  position: Jabatan | null
+  mode: "add" | "edit"
+  allPositions: Jabatan[]
+  bidangList: Bidang[]
 }
 
 export function PositionDialog({
@@ -43,9 +43,9 @@ export function PositionDialog({
     role: Role.Staff_Kabag,
     bidang_id: null,
     parent_id: null,
-  });
-  const [isSaving, setIsSaving] = useState(false);
-  const { toast } = useToast();
+  })
+  const [isSaving, setIsSaving] = useState(false)
+  const { toast } = useToast()
 
   // Reset form when dialog opens or position changes
   useEffect(() => {
@@ -56,7 +56,7 @@ export function PositionDialog({
         role: position.role,
         bidang_id: position.bidang_id,
         parent_id: position.parent_id || null,
-      });
+      })
     } else {
       setFormData({
         nama: "",
@@ -64,16 +64,16 @@ export function PositionDialog({
         role: Role.Staff_Kabag,
         bidang_id: null,
         parent_id: null,
-      });
+      })
     }
-  }, [position, mode, isOpen]);
+  }, [position, mode, isOpen])
 
   const handleChange = (field: keyof Partial<Jabatan>, value: string | Role | Bidang | bigint | null) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value === "none" ? null : value,
-    }));
-  };
+    }))
+  }
 
   const handleSubmit = async () => {
     if (!formData.nama) {
@@ -81,8 +81,8 @@ export function PositionDialog({
         title: "Nama jabatan diperlukan",
         description: "Silakan masukkan nama jabatan",
         variant: "destructive",
-      });
-      return;
+      })
+      return
     }
 
     if (!formData.role) {
@@ -90,8 +90,8 @@ export function PositionDialog({
         title: "Role diperlukan",
         description: "Silakan pilih role untuk jabatan ini",
         variant: "destructive",
-      });
-      return;
+      })
+      return
     }
 
     if (!formData.bidang_id) {
@@ -99,36 +99,40 @@ export function PositionDialog({
         title: "Bidang diperlukan",
         description: "Silakan pilih bidang untuk jabatan ini",
         variant: "destructive",
-      });
-      return;
+      })
+      return
     }
 
-    setIsSaving(true);
+    setIsSaving(true)
     try {
-      await onSave({
+      // Convert BigInt values to strings before sending to API
+      const dataToSend = {
         ...formData,
-        bidang_id: formData.bidang_id,
-      });
-      onClose();
+        bidang_id: formData.bidang_id ? formData.bidang_id.toString() : null,
+        parent_id: formData.parent_id ? formData.parent_id.toString() : null,
+      }
+
+      await onSave(dataToSend)
+      onClose()
     } catch (error) {
-      console.error("Error saving position:", error);
+      console.error("Error saving position:", error)
       toast({
         title: "Error",
         description: "Gagal menyimpan jabatan",
         variant: "destructive",
-      });
+      })
     } finally {
-      setIsSaving(false);
+      setIsSaving(false)
     }
-  };
+  }
 
   // Filter out the current position from parent options to prevent circular references
   const parentOptions = allPositions.filter((p) => {
     if (mode === "edit" && position) {
-      return p.id.toString() !== position.id.toString() && p.parent_id?.toString() !== position.id.toString();
+      return p.id.toString() !== position.id.toString() && p.parent_id?.toString() !== position.id.toString()
     }
-    return true;
-  });
+    return true
+  })
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -257,5 +261,6 @@ export function PositionDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
+

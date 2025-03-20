@@ -86,7 +86,7 @@ export default function BidangPage() {
         variant: "success",
       });
 
-      fetchBidang();
+      
     } catch (error) {
       console.error("Error deleting bidang:", error);
       toast({
@@ -141,7 +141,7 @@ export default function BidangPage() {
         });
       }
 
-      fetchBidang();
+      
     } catch (error) {
       console.error("Error saving bidang:", error);
       toast({
@@ -211,6 +211,4 @@ export default function BidangPage() {
   );
 }
 
-function fetchBidang() {
-    throw new Error("Function not implemented.");
-}
+

@@ -1,4 +1,5 @@
-import { CheckCircle, AlertCircle, AlertTriangle, Info } from 'lucide-react'
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { CheckCircle, AlertCircle, AlertTriangle, Info , CalendarCheck2} from "lucide-react"
 
 type ToastIconProps = {
   variant?: "default" | "success" | "destructive" | "warning" | "info"
@@ -7,10 +8,10 @@ type ToastIconProps = {
 
 export function ToastIcon({ variant = "default", className }: ToastIconProps) {
   const iconClasses = "h-5 w-5"
-  
+
   switch (variant) {
     case "success":
-      return <CheckCircle className={`text-green-600 ${iconClasses} ${className}`} />
+      return <CalendarCheck2 className={`text-green-600 ${iconClasses} ${className}`} />
     case "destructive":
       return <AlertCircle className={`text-red-600 ${iconClasses} ${className}`} />
     case "warning":
@@ -21,3 +22,4 @@ export function ToastIcon({ variant = "default", className }: ToastIconProps) {
       return <Info className={`text-gray-600 ${iconClasses} ${className}`} />
   }
 }
+

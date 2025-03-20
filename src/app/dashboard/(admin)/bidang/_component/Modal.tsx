@@ -20,7 +20,7 @@ import { type Bidang } from "@/types/user";
 interface BidangDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (formData: Partial<Bidang>) => Promise<void>;
+  onSave: (formData: Partial<Bidang>) => Promise<void>; // Pastikan onSave diimplementasikan
   bidang: Bidang | null;
   mode: "add" | "edit";
 }
@@ -73,7 +73,8 @@ export function BidangDialog({
 
     setIsSaving(true);
     try {
-      await onSave(formData);
+      console.log("Form data sebelum disimpan:", formData); // Debugging
+      await onSave(formData); // Pastikan onSave diimplementasikan
       onClose();
     } catch (error) {
       console.error("Error saving bidang:", error);

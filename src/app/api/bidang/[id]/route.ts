@@ -5,13 +5,13 @@ import { serializeBigInt } from "@/lib/prisma";
 
 const prisma = new PrismaClient();
 
-// PUT: Perbarui data bidang berdasarkan ID
+// PUT: Update data bidang berdasarkan ID
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string} }
+  { params }: { params: { id: string } } // params sudah tersedia di sini
 ) {
   try {
-    const { id } = params;
+    const { id } = await params; // Langsung akses params.id
     const body = await request.json();
     const { nama, deskripsi } = body;
 
@@ -22,18 +22,20 @@ export async function PUT(
         { status: 400 }
       );
     }
-    
-    // Perbarui bidang
+
+    // Update data di database
     const updatedBidang = await prisma.bidang.update({
-      where: { id: BigInt(id) },
+      where: { id: BigInt(id) }, // Konversi id ke BigInt
       data: {
         nama,
         deskripsi,
       },
     });
-    const updatedBidangSerialize = serializeBigInt(updatedBidang);
 
-    return NextResponse.json(updatedBidangSerialize);
+    // Serialize data (konversi BigInt ke string)
+    const serializedBidang = serializeBigInt(updatedBidang);
+
+    return NextResponse.json(serializedBidang, { status: 200 });
   } catch (error) {
     console.error("Error updating bidang:", error);
     return NextResponse.json(
@@ -46,14 +48,14 @@ export async function PUT(
 // DELETE: Hapus data bidang berdasarkan ID
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } } // params sudah tersedia di sini
 ) {
   try {
-    const { id } = params;
+    const { id } = await params; // Langsung akses params.id
 
     // Hapus bidang
     await prisma.bidang.delete({
-      where: { id: BigInt(id) },
+      where: { id: BigInt(id) }, // Konversi id ke BigInt
     });
 
     return NextResponse.json(
