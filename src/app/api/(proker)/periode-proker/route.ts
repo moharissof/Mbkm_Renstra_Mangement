@@ -9,7 +9,6 @@ export async function GET(request: Request) {
 
     // Get query parameters
     const query = searchParams.get("query")?.toLowerCase() || ""
-    const periodeId = searchParams.get("periode_id") ? BigInt(searchParams.get("periode_id")!) : undefined
     const page = Number.parseInt(searchParams.get("page") || "1")
     const limit = Number.parseInt(searchParams.get("limit") || "10")
     const skip = (page - 1) * limit
@@ -18,34 +17,28 @@ export async function GET(request: Request) {
     const where: any = {}
 
     if (query) {
-      where.OR = [{ nama: { contains: query, mode: "insensitive" } }]
-    }
-
-    if (periodeId) {
-      where.periode_id = periodeId
+      where.OR = [{ tahun: { contains: query, mode: "insensitive" } }]
     }
 
     // Get total count for pagination
-    const total = await prisma.renstra.count({ where })
+    const total = await prisma.periode_proker.count({ where })
 
-    // Fetch renstra items
-    const renstra = await prisma.renstra.findMany({
+    // Fetch periode_proker items
+    const periodeProker = await prisma.periode_proker.findMany({
       where,
       skip,
       take: limit,
       orderBy: {
-        created_at: "desc",
+        tahun: "desc",
       },
       include: {
-        periode: true,
-        sub_renstra: true,
-        point_renstra: true,
+        program_kerja: true,
       },
     })
 
     // Serialize BigInt values before sending the response
     const serializedData = serializeBigInt({
-      renstra,
+      periodeProker,
       total,
       page,
       limit,
@@ -55,8 +48,8 @@ export async function GET(request: Request) {
     // Return response
     return NextResponse.json(serializedData)
   } catch (error) {
-    console.error("Error fetching renstra:", error)
-    return NextResponse.json({ error: "Failed to fetch renstra" }, { status: 500 })
+    console.error("Error fetching program periods:", error)
+    return NextResponse.json({ error: "Failed to fetch program periods" }, { status: 500 })
   }
 }
 
@@ -65,42 +58,37 @@ export async function POST(request: Request) {
     const body = await request.json()
 
     // Validate required fields
-    if (!body.nama || !body.periode_id) {
+    if (!body.tahun || !body.tanggal_mulai || !body.tanggal_selesai) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    // Convert periode_id to BigInt
-    const periode_id = BigInt(body.periode_id)
-
-    // Check if periode exists
-    const periode = await prisma.periode_renstra.findUnique({
-      where: { id: periode_id },
+    // Check if year already exists
+    const existingPeriod = await prisma.periode_proker.findFirst({
+      where: { tahun: body.tahun },
     })
 
-    if (!periode) {
-      return NextResponse.json({ error: "Period not found" }, { status: 400 })
+    if (existingPeriod) {
+      return NextResponse.json({ error: "A period with this year already exists" }, { status: 400 })
     }
 
-    // Create new renstra
-    const newRenstra = await prisma.renstra.create({
+    // Create new periode_proker
+    const newPeriodeProker = await prisma.periode_proker.create({
       data: {
-        nama: body.nama,
-        periode_id: periode_id,
+        tahun: body.tahun,
+        tanggal_mulai: new Date(body.tanggal_mulai),
+        tanggal_selesai: new Date(body.tanggal_selesai),
         created_at: new Date(),
         updated_at: new Date(),
-      },
-      include: {
-        periode: true,
       },
     })
 
     // Serialize BigInt values before sending the response
-    const serializedRenstra = serializeBigInt(newRenstra)
+    const serializedPeriodeProker = serializeBigInt(newPeriodeProker)
 
-    return NextResponse.json(serializedRenstra, { status: 201 })
+    return NextResponse.json(serializedPeriodeProker, { status: 201 })
   } catch (error) {
-    console.error("Error creating renstra:", error)
-    return NextResponse.json({ error: "Failed to create renstra" }, { status: 500 })
+    console.error("Error creating program period:", error)
+    return NextResponse.json({ error: "Failed to create program period" }, { status: 500 })
   }
 }
 

@@ -18,7 +18,9 @@ import {
   UserCog,
   FolderClock,
   Network,
-  ShieldUser
+  ShieldUser,
+  SquareKanban,
+  FileClock
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -49,7 +51,13 @@ const menuItems = [
   {
     title: "Periode Renstra",
     icon: FolderClock,
-    href: "/dashboard/periode",
+    href: "/dashboard/periode-renstra",
+    roles: [Role.Admin, Role.Kabag], // Only Admin and Kabag
+  },
+  {
+    title: "Periode Proker",
+    icon: FileClock,
+    href: "/dashboard/periode-renstra",
     roles: [Role.Admin, Role.Kabag], // Only Admin and Kabag
   },
   {
@@ -59,11 +67,18 @@ const menuItems = [
     roles: [Role.Admin], // Only Admin can manage users
   },
   {
+    title: "Renstra",
+    icon: SquareKanban,
+    href: "/dashboard/renstra",
+    roles: [Role.Admin, Role.Waket_1, Role.Waket_2], // Only Admin can manage positions
+  },
+  {
     title: "Jabatan",
     icon: Network,
     href: "/dashboard/jabatan",
     roles: [Role.Admin], // Only Admin can manage positions
   },
+
   // {
   //   title: "Pages",
   //   icon: FileText,
