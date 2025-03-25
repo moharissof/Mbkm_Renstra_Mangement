@@ -82,8 +82,11 @@ export function ProgramKerjaForm({
             indikator_proker: programKerja.indikator_proker || [
               { nama: "", target: "", satuan: "" },
             ],
-            point_standar:
-              programKerja.point_standar?.map((ps: any) => ps.id) || [],
+            point_standar: programKerja.point_standar?.map((ps: any) => ({
+              id: ps.id, // tambahkan ini jika diperlukan
+              nama: ps.nama, 
+              point: ps.point
+            })) || [{ nama: "", point: 0 }]
           }
         : {
             nama: "",

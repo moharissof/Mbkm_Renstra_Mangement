@@ -38,7 +38,7 @@ export const createProgramKerjaColumns = (
   },
   {
     accessorKey: "nama",
-    header: "Program Name",
+    header: "Nama Program",
     cell: ({ row }) => {
       const program = row.original
       return (
@@ -49,7 +49,7 @@ export const createProgramKerjaColumns = (
           <div>
             <div className="font-medium">{program.nama}</div>
             <div className="text-xs text-gray-500">
-              {program.point_renstra?.bidang?.nama} ({program.point_renstra?.bidang?.kode})
+              {program.point_renstra?.bidang?.nama}
             </div>
           </div>
         </div>
@@ -58,7 +58,7 @@ export const createProgramKerjaColumns = (
   },
   {
     id: "periode",
-    header: "Period",
+    header: "Periode",
     cell: ({ row }) => {
       const program = row.original
       return <div>{program.periode_proker?.tahun || "-"}</div>

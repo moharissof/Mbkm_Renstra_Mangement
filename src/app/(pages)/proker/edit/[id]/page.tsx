@@ -139,7 +139,7 @@ export default function EditProgramKerjaPage() {
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Bidang</h3>
                 <p className="font-medium">
-                  {programKerja.point_renstra?.bidang?.nama} ({programKerja.point_renstra?.bidang?.kode})
+                  {programKerja.point_renstra?.bidang?.nama}
                 </p>
               </div>
               <div>
@@ -149,7 +149,7 @@ export default function EditProgramKerjaPage() {
                 <p className="font-medium">{programKerja.point_renstra?.sub_renstra?.nama}</p>
               </div>
               <div>
-                <h3 className="text-sm font-medium text-gray-500">Periode</h3>
+                <h3 className="text-sm font-medium text-gray-500">Periode Proker</h3>
                 <p className="font-medium">{programKerja.periode_proker?.tahun}</p>
               </div>
             </div>
