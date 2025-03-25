@@ -16,32 +16,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
-// Define types
-type PointRenstra = {
-  id: string;
-  nama: string;
-  renstra_id: string;
-  sub_renstra_id: string;
-  bidang_id: string;
-  bidang?: {
-    nama: string;
-    kode: string;
-  };
-  sub_renstra?: {
-    nama: string;
-    renstra?: {
-      nama: string;
-    };
-  };
-};
-
-type PeriodeProker = {
-  id: string;
-  tahun: string;
-  tanggal_mulai: string;
-  tanggal_selesai: string;
-};
+import { PointRenstra } from "@/types/renstra";
+import { PeriodeProker } from "@/types/proker";
 
 export default function CreateProgramKerjaPage() {
   const params = useParams();
@@ -55,7 +31,6 @@ export default function CreateProgramKerjaPage() {
   const [loading, setLoading] = useState(true);
   const [pointRenstra, setPointRenstra] = useState<PointRenstra | null>(null);
   const [periode, setPeriode] = useState<PeriodeProker | null>(null);
-  const [pointStandarList, setPointStandarList] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -77,12 +52,7 @@ export default function CreateProgramKerjaPage() {
           setPeriode(periodeData);
         }
 
-        // Fetch point standar list
-        const standarResponse = await fetch("/api/point-standar");
-        if (!standarResponse.ok)
-          throw new Error("Failed to fetch point standar");
-        const standarData = await standarResponse.json();
-        setPointStandarList(standarData.pointStandar || standarData);
+        
       } catch (err) {
         console.error("Error fetching data:", err);
         showError("Error", "Failed to fetch required data");
@@ -114,7 +84,7 @@ export default function CreateProgramKerjaPage() {
       success("Success", "Program kerja has been created successfully");
 
       // Redirect to program list or detail page
-      router.push("/program-kerja");
+      router.push("/proker");
     } catch (err) {
       console.error("Error creating program:", err);
       showError(
@@ -214,7 +184,6 @@ export default function CreateProgramKerjaPage() {
         <ProgramKerjaForm
           pointRenstra={pointRenstra}
           periode={periode}
-          pointStandarList={pointStandarList}
           onSubmit={handleSubmit}
           mode="create"
         />

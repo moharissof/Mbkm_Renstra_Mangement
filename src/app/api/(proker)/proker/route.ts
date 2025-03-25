@@ -155,16 +155,23 @@ export async function POST(request: Request) {
 
       await Promise.all(indikatorPromises)
 
-      // Connect point_standar if provided
+      // Create point_standar records if provided
       if (body.point_standar && body.point_standar.length > 0) {
-        await tx.program_kerja.update({
-          where: { id: newProgramKerja.id },
-          data: {
-            point_standar: {
-              connect: body.point_standar.map((ps: any) => ({ id: BigInt(ps.id) })),
+        const pointStandarPromises = body.point_standar.map((pointStandar: any) =>
+          tx.point_standar.create({
+            data: {
+              nama: pointStandar.nama,
+              point: pointStandar.point,
+              created_at: new Date(),
+              updated_at: new Date(),
+              program_kerja: {
+                connect: { id: newProgramKerja.id },
+              },
             },
-          },
-        })
+          }),
+        )
+
+        await Promise.all(pointStandarPromises)
       }
 
       // Return the created program with its relations

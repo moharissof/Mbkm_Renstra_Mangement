@@ -117,26 +117,34 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
       // Handle point_standar updates
       if (body.point_standar) {
-        // Disconnect all existing point_standar
-        await tx.program_kerja.update({
-          where: { id: BigInt(id) },
-          data: {
-            point_standar: {
-              set: [], // Clear existing connections
+        // Delete existing point_standar records for this program
+        await tx.point_standar.deleteMany({
+          where: {
+            program_kerja: {
+              some: {
+                id: BigInt(id),
+              },
             },
           },
         })
 
-        // Connect new point_standar
+        // Create new point_standar records
         if (body.point_standar.length > 0) {
-          await tx.program_kerja.update({
-            where: { id: BigInt(id) },
-            data: {
-              point_standar: {
-                connect: body.point_standar.map((ps: any) => ({ id: BigInt(typeof ps === "object" ? ps.id : ps) })),
+          const pointStandarPromises = body.point_standar.map((pointStandar: any) =>
+            tx.point_standar.create({
+              data: {
+                nama: pointStandar.nama,
+                point: pointStandar.point,
+                created_at: new Date(),
+                updated_at: new Date(),
+                program_kerja: {
+                  connect: { id: BigInt(id) },
+                },
               },
-            },
-          })
+            }),
+          )
+
+          await Promise.all(pointStandarPromises)
         }
       }
 
@@ -189,12 +197,13 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
         where: { proker_id: BigInt(id) },
       })
 
-      // Disconnect point_standar
-      await tx.program_kerja.update({
-        where: { id: BigInt(id) },
-        data: {
-          point_standar: {
-            set: [], // Clear existing connections
+      // Delete related point_standar
+      await tx.point_standar.deleteMany({
+        where: {
+          program_kerja: {
+            some: {
+              id: BigInt(id),
+            },
           },
         },
       })

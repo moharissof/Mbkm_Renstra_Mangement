@@ -20,7 +20,6 @@ import { format } from "date-fns";
 interface ProgramKerjaFormProps {
   pointRenstra: any;
   periode: any;
-  pointStandarList: any[];
   programKerja?: any;
   onSubmit: (data: any) => Promise<void>;
   mode: "create" | "edit";
@@ -40,7 +39,7 @@ export function ProgramKerjaForm({
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch("/api/user", {
+        const response = await fetch("/api/auth/user", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -129,7 +128,7 @@ export function ProgramKerjaForm({
         user_id: user?.id, // Gunakan user.id dari state
         status: "Draft", // Default status for new programs
         progress: 0, // Default progress for new programs
-        anggaran: data.anggaran ? BigInt(data.anggaran) : null,
+        anggaran: data.anggaran ? data.anggaran.toString() : null,
         volume: Number(data.volume),
         waktu_mulai: new Date(data.waktu_mulai),
         waktu_selesai: new Date(data.waktu_selesai),
