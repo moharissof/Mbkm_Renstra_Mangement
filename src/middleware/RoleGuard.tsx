@@ -41,7 +41,7 @@ export default function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
         setHasAccess(true)
       } else {
         // Jika role tidak diizinkan, arahkan ke halaman unauthorized
-        router.push("/unauthorized")
+        router.push("/error/401")
       }
     } catch (error) {
       console.error("Error checking access:", error)

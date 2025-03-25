@@ -36,12 +36,6 @@ const menuItems = [
     href: "/dashboard",
     roles: [Role.Admin, Role.Ketua, Role.Waket_1, Role.Waket_2, Role.Kabag, Role.Staff_Kabag], // All roles can access
   },
-  // {
-  //   title: "Calendar",
-  //   icon: Calendar,
-  //   href: "/calendar",
-  //   roles: [Role.Admin, Role.Ketua, Role.Waket_1, Role.Waket_2, Role.Kabag, Role.Staff_Kabag], // All roles can access
-  // },
   {
     title: "Bidang",
     icon: SquareUser,
@@ -71,6 +65,12 @@ const menuItems = [
     icon: SquareKanban,
     href: "/dashboard/renstra",
     roles: [Role.Admin, Role.Waket_1, Role.Waket_2], // Only Admin can manage positions
+  },
+  {
+    title: "Proker",
+    icon: Calendar,
+    href: "/proker",
+    roles: [Role.Ketua, Role.Waket_1, Role.Waket_2, Role.Kabag, Role.Staff_Kabag], // All roles can access
   },
   {
     title: "Jabatan",

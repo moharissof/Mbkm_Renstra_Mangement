@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 export const updateSession = async (request: NextRequest) => {
   try {
@@ -10,7 +8,6 @@ export const updateSession = async (request: NextRequest) => {
         headers: request.headers,
       },
     });
-    const supabaseSession = createClientComponentClient();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -38,13 +35,20 @@ export const updateSession = async (request: NextRequest) => {
     const {
       data: { session },
     } = await supabase.auth.getSession();
-    // console.log("session", session);
-    // Define protected routes
-    const protectedRoutes = ["/dashboard", "/profile"]; // Sesuaikan dengan rute yang ingin dilindungi
-    const isProtectedRoute = protectedRoutes.some((route) =>
-      request.nextUrl.pathname.startsWith(route)
-    );
+    const protectedRoutes = [
+      /^\/dashboard(\/.*)?$/,
+      "/profile",
+      /^\/proker(\/.*)?$/,
+    ];
 
+    const isProtectedRoute = protectedRoutes.some((route) => {
+      if (typeof route === "string") {
+        return request.nextUrl.pathname.startsWith(route);
+      } else if (route instanceof RegExp) {
+        return route.test(request.nextUrl.pathname);
+      }
+      return false;
+    });
     // If no session and trying to access a protected route, redirect to login
     if (!session && isProtectedRoute) {
       return NextResponse.redirect(new URL("/login", request.url));
