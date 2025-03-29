@@ -25,7 +25,8 @@ import {
 } from "@/components/ui/breadcrumb";
 import { ProgramKerjaDetails } from "../_component/Detail";
 import { PageLoader } from "@/components/ui/loader";
-import { DashboardLayout } from "@/components/Dashboard/layout";
+import { DashboardLayout } from "@/components/dashboard/layout";
+
 
 async function getProgramKerja(id: string) {
   try {
@@ -47,14 +48,16 @@ async function getProgramKerja(id: string) {
   }
 }
 
+type Params = Promise<{ id: string }>
+
 export default async function ProgramKerjaViewPage({
   params,
 }: {
-  params: { id: string };
+  params: Params;
 }) {
   return (
     <Suspense fallback={<PageLoader />}>
-      <ProgramKerjaView id={params.id} />
+      <ProgramKerjaView id={(await params).id} />
     </Suspense>
   );
 }

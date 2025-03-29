@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server"
 import prisma, { serializeBigInt } from "@/lib/prisma"
 import { Role } from "@/types/user"
+type Params = Promise<{ id: string }>;
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Params }) {
   try {
-    const id = await params.id
+    const id = await (await params).id
 
     // Find position by ID with parent and children
     const position = await prisma.jabatan.findUnique({
@@ -29,10 +30,10 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(request: Request , { params }: { params: { id: string } }) {
+export async function PUT(request: Request , { params }: { params: Params }) {
   try {
 
-    const id =  await params.id
+    const id =  await (await params).id
     const body = await request.json();
     // Validate role
     if (!Object.values(Role).includes(body.role)) {
@@ -75,9 +76,9 @@ export async function PUT(request: Request , { params }: { params: { id: string 
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Params }) {
   try {
-    const id = params.id
+    const id = (await params).id
 
     // Check if position exists
     const existingPosition = await prisma.jabatan.findUnique({

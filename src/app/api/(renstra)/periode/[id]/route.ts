@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma, serializeBigInt } from "@/lib/prisma";
+type Params = Promise<{ id: string }>;
 
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Params  }) {
     try {
       
       const body = await request.json();
       const updatedPeriodeRenstra = await prisma.periode_renstra.update({
-        where: { id: BigInt(params.id) },
+        where: { id: BigInt((await params).id) },
         data: body,
       });
 
@@ -23,10 +24,10 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     }
   }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Params }) {
   try {
     await prisma.periode_renstra.delete({
-      where: { id: BigInt(params.id) },
+      where: { id: BigInt((await params).id) },
     });
     return NextResponse.json({ message: "Periode renstra deleted successfully" });
   } catch (error) {
