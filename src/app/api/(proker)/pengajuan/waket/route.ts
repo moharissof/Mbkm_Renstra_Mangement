@@ -47,7 +47,7 @@ export async function GET(request: Request) {
       select: { id: true }
     })
 
-    const positionIds = positionsInBidang.map(p => p.id)
+    const positionIds = positionsInBidang.map((p: any) => p.id)
 
     // 3. Get all users in these positions
     const usersInBidang = await prisma.users.findMany({
@@ -61,7 +61,7 @@ export async function GET(request: Request) {
       }
     })
 
-    const userIdsInBidang = usersInBidang.map(u => u.id)
+    const userIdsInBidang = usersInBidang.map((u: any) => u.id)
 
     // 4. Build filter conditions
     const where: any = {

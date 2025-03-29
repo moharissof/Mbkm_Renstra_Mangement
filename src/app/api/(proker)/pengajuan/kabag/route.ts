@@ -35,7 +35,7 @@ export async function GET(request: Request) {
         select: { id: true }
       })
 
-      let ids = subordinates.map(j => j.id)
+      let ids = subordinates.map((j: any) => j.id)
       
       for (const sub of subordinates) {
         const childIds = await getSubordinateIds(sub.id)
@@ -59,7 +59,7 @@ export async function GET(request: Request) {
       }
     })
 
-    const subordinateUserIds = subordinateUsers.map(u => u.id)
+    const subordinateUserIds = subordinateUsers.map((u: any) => u.id)
 
     // 4. Build filter conditions
     const where: any = {
