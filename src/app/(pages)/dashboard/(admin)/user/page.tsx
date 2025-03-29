@@ -3,7 +3,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { DashboardLayout } from "@/components/Dashboard/_layout";
+import { DashboardLayout } from "@/components/Dashboard/layout";
 import { DataTableCard } from "@/components/DataTable/CardTable";
 import { createUserColumns } from "./_component/Column";
 import { Button } from "@/components/ui/button";

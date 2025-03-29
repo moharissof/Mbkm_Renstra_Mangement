@@ -9,18 +9,13 @@ import {
   ChevronUp,
   FileText,
   LayoutDashboard,
-  Package,
-  ShoppingCart,
-  Table2,
-  User,
-  Users,
   SquareUser,
-  UserCog,
   FolderClock,
   Network,
   ShieldUser,
   SquareKanban,
-  FileClock
+  FileClock,
+  BookAudio
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -46,13 +41,13 @@ const menuItems = [
     title: "Periode Renstra",
     icon: FolderClock,
     href: "/dashboard/periode-renstra",
-    roles: [Role.Admin, Role.Kabag], // Only Admin and Kabag
+    roles: [Role.Admin  ], // Only Admin and Kabag
   },
   {
     title: "Periode Proker",
     icon: FileClock,
-    href: "/dashboard/periode-renstra",
-    roles: [Role.Admin, Role.Kabag], // Only Admin and Kabag
+    href: "/dashboard/periode-proker",
+    roles: [Role.Admin], // Only Admin and Kabag
   },
   {
     title: "Users",
@@ -67,10 +62,28 @@ const menuItems = [
     roles: [Role.Admin, Role.Waket_1, Role.Waket_2], // Only Admin can manage positions
   },
   {
-    title: "Proker",
+    title: "Pengajuan Proker",
+    icon: SquareKanban,
+    href: "/proker/pengajuan/waket",
+    roles: [Role.Waket_1, Role.Waket_2], // Only Admin can manage positions
+  },
+  {
+    title: "Pengajuan Proker",
+    icon: SquareKanban,
+    href: "/proker/pengajuan/kabag",
+    roles: [Role.Kabag], // Only Admin can manage positions
+  },
+  {
+    title: "Buat Proker",
     icon: Calendar,
     href: "/proker",
-    roles: [Role.Ketua, Role.Waket_1, Role.Waket_2, Role.Kabag, Role.Staff_Kabag], // All roles can access
+    roles: [Role.Kabag, Role.Staff_Kabag], // All roles can access
+  },
+  {
+    title: "Daftar Proker",
+    icon: BookAudio,
+    href: "/proker/daftar",
+    roles: [Role.Kabag, Role.Staff_Kabag], // All roles can access
   },
   {
     title: "Jabatan",
@@ -78,17 +91,6 @@ const menuItems = [
     href: "/dashboard/jabatan",
     roles: [Role.Admin], // Only Admin can manage positions
   },
-
-  // {
-  //   title: "Pages",
-  //   icon: FileText,
-  //   href: "#",
-  //   submenu: [
-  //     { title: "Settings", href: "/settings" },
-  //     { title: "Profile", href: "/profile" },
-  //   ],
-  //   roles: [Role.Admin, Role.Ketua, Role.Waket_1, Role.Waket_2, Role.Kabag, Role.Staff_Kabag], // All roles can access
-  // },
   {
     title: "Setting",
     icon: BarChart3,

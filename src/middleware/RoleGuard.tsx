@@ -35,13 +35,15 @@ export default function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
 
       // Parse data dari response
       const { role } = await response.json()
-
+      if (!role) {
+        router.push("/login")
+      }
       // Periksa apakah role pengguna termasuk dalam allowedRoles
       if (role && allowedRoles.includes(role as Role)) {
         setHasAccess(true)
       } else {
         // Jika role tidak diizinkan, arahkan ke halaman unauthorized
-        router.push("/error/401")
+        router.push("/401")
       }
     } catch (error) {
       console.error("Error checking access:", error)

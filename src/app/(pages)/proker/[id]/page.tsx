@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { ProgramKerjaDetails } from "../_component/Detail";
 import { PageLoader } from "@/components/ui/loader";
-import { DashboardLayout } from "@/components/Dashboard/_layout";
+import { DashboardLayout } from "@/components/Dashboard/layout";
 
 async function getProgramKerja(id: string) {
   try {

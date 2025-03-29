@@ -8,6 +8,7 @@ export const updateSession = async (request: NextRequest) => {
         headers: request.headers,
       },
     });
+
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -35,6 +36,7 @@ export const updateSession = async (request: NextRequest) => {
     const {
       data: { session },
     } = await supabase.auth.getSession();
+    // Define protected routes
     const protectedRoutes = [
       /^\/dashboard(\/.*)?$/,
       "/profile",
@@ -49,6 +51,7 @@ export const updateSession = async (request: NextRequest) => {
       }
       return false;
     });
+
     // If no session and trying to access a protected route, redirect to login
     if (!session && isProtectedRoute) {
       return NextResponse.redirect(new URL("/login", request.url));
@@ -59,8 +62,45 @@ export const updateSession = async (request: NextRequest) => {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
 
+    // If there's a session, fetch user data
+    if (session) {
+      const { data: userData, error: userError } = await supabase
+        .from("users")
+        .select(`
+          *,
+          jabatan:jabatan_id(
+            *,
+            parent:parent_id(*)
+          )
+        `)
+        .eq("id", session.user.id)
+        .single();
+
+      if (userError) {
+        throw new Error(`Failed to fetch user data: ${userError.message}`);
+      }
+
+      if (!userData) {
+        throw new Error("User data not found");
+      }
+
+      // Check verification status
+      if (!userData.isVerified) {
+        // Allow access to verification page and static files
+        if (request.nextUrl.pathname.startsWith('/verify-email') || 
+            request.nextUrl.pathname.startsWith('/_next/') ||
+            request.nextUrl.pathname.startsWith('/assets/')) {
+          return response;
+        }
+        
+        // Redirect unverified users trying to access protected routes
+        if (isProtectedRoute) {
+          return NextResponse.redirect(new URL("/verify-admin", request.url));
+        }
+      }
+    }
+
     return response;
-    // Define protected routes
   } catch (error) {
     console.error("Error in updateSession:", error);
     return NextResponse.next({

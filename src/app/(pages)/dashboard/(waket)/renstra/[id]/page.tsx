@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { DashboardLayout } from "@/components/Dashboard/_layout";
+import { DashboardLayout } from "@/components/Dashboard/layout";
 
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, PlusCircle, RefreshCw } from "lucide-react";

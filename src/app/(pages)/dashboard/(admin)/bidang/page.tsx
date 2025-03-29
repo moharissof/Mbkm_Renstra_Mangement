@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { DashboardLayout } from "@/components/Dashboard/_layout";
+import { DashboardLayout } from "@/components/Dashboard/layout";
 import { DataTableCard } from "@/components/DataTable/CardTable";
 import { createBidangColumns } from "./_component/Column"; // Ensure casing matches
 import { Button } from "@/components/ui/button";
