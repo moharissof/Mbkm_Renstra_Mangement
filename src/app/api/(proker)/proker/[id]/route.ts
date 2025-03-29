@@ -69,7 +69,7 @@ export async function PUT(request: Request, { params }: { params: Params }) {
     }
 
     // Start a transaction
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx : any) => {
       // Update program_kerja
       const updatedProgramKerja = await tx.program_kerja.update({
         where: { id: BigInt(id) },
