@@ -41,7 +41,7 @@ export default function RegisterPage() {
       }
 
       // Handle successful registration
-      router.push("/login?registered=true")
+      router.push("/verify-email")
     } catch (error) {
       setError(error instanceof Error ? error.message : "An error occurred during registration")
     } finally {

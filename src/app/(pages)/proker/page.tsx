@@ -1,17 +1,19 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { DashboardLayout } from "@/components/Dashboard/_layout";
+import { DashboardLayout } from "@/components/Dashboard/layout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { StatusChangeDialog } from "./_component/Modal";
+import RoleGuard from "@/middleware/RoleGuard";
+import { Role } from "@/types/user";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, PlusCircle, Filter } from "lucide-react";
 import { DataTableCard } from "@/components/DataTable/CardTable";
 import { createProgramKerjaColumns } from "./_component/Column";
+import { PageLoader } from "@/components/ui/loader";
 import {
   Select,
   SelectContent,
@@ -22,27 +24,7 @@ import {
 
 export default function ProgramKerjaPage() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null); // State untuk menyimpan data user
-
-  // Fetch user data on component mount
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await fetch("/api/auth/role", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const { user: userData } = await response.json();
-        setUser(userData); // Simpan data user ke state
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
-
-    fetchUser();
-  }, []);
+  const [user, setUser] = useState<{ id?: string }>({});
   const { error: showError } = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -52,6 +34,29 @@ export default function ProgramKerjaPage() {
   const [selectedPeriode, setSelectedPeriode] = useState<string | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
 
+  // Status change dialog state
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [selectedProgram, setSelectedProgram] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch("/api/auth/user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const { user: userData } = await response.json();
+        console.log("userData", userData);
+        setUser(userData); // Simpan data user ke state
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
   // Fetch active periods
   useEffect(() => {
     const fetchPeriodes = async () => {
@@ -83,14 +88,16 @@ export default function ProgramKerjaPage() {
     fetchPeriodes();
   }, []);
 
-  // Fetch programs
   useEffect(() => {
     const fetchPrograms = async () => {
+      // Don't fetch if user isn't available yet
+      console.log("user", user);
+      if (!user?.id) return;
+
       setLoading(true);
       try {
         let url = "/api/proker?";
 
-        // Add filters if selected
         if (selectedPeriode) {
           url += `periode_proker_id=${selectedPeriode}&`;
         }
@@ -99,10 +106,7 @@ export default function ProgramKerjaPage() {
           url += `status=${selectedStatus}&`;
         }
 
-        // Add user filter if not admin
-        if (user && user.jabatan?.role !== "Admin") {
-          url += `user_id=${user.id}&`;
-        }
+        url += `user_id=${user.id}&`;
 
         const response = await fetch(url);
         if (!response.ok) throw new Error("Failed to fetch programs");
@@ -121,7 +125,7 @@ export default function ProgramKerjaPage() {
     };
 
     fetchPrograms();
-  }, []);
+  }, [selectedPeriode, selectedStatus, user]); // Add user to dependencies
 
   const handleCreateProgram = () => {
     router.push("/proker/renstra");
@@ -162,12 +166,16 @@ export default function ProgramKerjaPage() {
       );
     }
   };
-
+  const handleChangeStatus = (program: any) => {
+    setSelectedProgram(program);
+    setStatusDialogOpen(true);
+  };
   // Create columns with the actions
   const programColumns = createProgramKerjaColumns(
     handleViewProgram,
     handleEditProgram,
-    handleDeleteProgram
+    handleDeleteProgram,
+    handleChangeStatus
   );
 
   // Count programs by status
@@ -178,104 +186,138 @@ export default function ProgramKerjaPage() {
   const doneCount = programs.filter((p) => p.status === "Done").length;
   console.log("programs", rejectedCount);
   return (
-    <DashboardLayout>
-      <div className="p-6 space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold">Program Kerja</h1>
-            <p className="text-gray-500 mt-1">Kelola program kerja Anda</p>
-          </div>
-          <Button onClick={handleCreateProgram}>
-            <PlusCircle className="mr-2 h-4 w-4" /> Buat Program
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <div className="text-sm text-gray-500">Total Proker</div>
-            <div className="text-2xl font-bold mt-1">{totalPrograms}</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <div className="text-sm text-gray-500">Draft</div>
-            <div className="text-2xl font-bold mt-1">{draftCount}</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <div className="text-sm text-gray-500">Planning</div>
-            <div className="text-2xl font-bold mt-1">{planningCount}</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <div className="text-sm text-gray-500">Approved</div>
-            <div className="text-2xl font-bold mt-1">{approvedCount}</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <div className="text-sm text-gray-500">Done</div>
-            <div className="text-2xl font-bold mt-1">{doneCount}</div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="border-l-4 border-primary p-4">
-            <div className="flex items-center gap-2 mb-4">
-              <Filter className="h-5 w-5 text-primary" />
-              <span className="font-medium">Filters:</span>
-            </div>
-
-            <div className="flex flex-wrap gap-4">
-              <div className="w-full sm:w-auto">
-                <Select value={selectedPeriode || ""} onValueChange={setSelectedPeriode}>
-                  <SelectTrigger className="w-full sm:w-[180px] bg-white border-gray-200">
-                    <SelectValue placeholder="Pilih periode" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Semua Periode</SelectItem>
-                    {periodes.map((period) => (
-                      <SelectItem key={period.id} value={period.id.toString()}>
-                        {period.tahun}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+    <RoleGuard allowedRoles={[Role.Kabag, Role.Staff_Kabag]}>
+      {/* Jika loading dan users kosong, tampilkan PageLoader */}
+      {loading && programs.length === 0 ? (
+        <DashboardLayout>
+          <PageLoader />
+        </DashboardLayout>
+      ) : (
+        <DashboardLayout>
+          <div className="p-6 space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-2xl font-bold">Program Kerja</h1>
+                <p className="text-gray-500 mt-1">Kelola program kerja Anda</p>
               </div>
-
-              <div className="w-full sm:w-auto">
-                <Select value={selectedStatus || ""} onValueChange={setSelectedStatus}>
-                  <SelectTrigger className="w-full sm:w-[180px] bg-white border-gray-200">
-                    <SelectValue placeholder="Pilih status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Semua Status</SelectItem>
-                    <SelectItem value="Draft">Draft</SelectItem>
-                    <SelectItem value="Planning">Planning</SelectItem>
-                    <SelectItem value="Disetujui">Disetujui</SelectItem>
-                    <SelectItem value="Ditolak">Ditolak</SelectItem>
-                    <SelectItem value="Done">Selesai</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {loading ? (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        ) : (
-          <DataTableCard
-            columns={programColumns}
-            data={programs}
-            title="Program Kerja"
-            description="Kelola program kerja dan pantau perkembangannya"
-            searchColumn="nama"
-            searchPlaceholder="Cari program..."
-            extraActions={
-              <Button size="sm" className="h-10" onClick={handleCreateProgram}>
-                <PlusCircle className="mr-2 h-4 w-4" /> Program Baru
+              <Button onClick={handleCreateProgram}>
+                <PlusCircle className="mr-2 h-4 w-4" /> Buat Program
               </Button>
-            }
-          />
-        )}
-      </div>
-    </DashboardLayout>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <div className="text-sm text-gray-500">Total Proker</div>
+                <div className="text-2xl font-bold mt-1">{totalPrograms}</div>
+              </div>
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <div className="text-sm text-gray-500">Draft</div>
+                <div className="text-2xl font-bold mt-1">{draftCount}</div>
+              </div>
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <div className="text-sm text-gray-500">Planning</div>
+                <div className="text-2xl font-bold mt-1">{planningCount}</div>
+              </div>
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <div className="text-sm text-gray-500">Approved</div>
+                <div className="text-2xl font-bold mt-1">{approvedCount}</div>
+              </div>
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <div className="text-sm text-gray-500">Done</div>
+                <div className="text-2xl font-bold mt-1">{doneCount}</div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div className="border-l-4 border-primary p-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <Filter className="h-5 w-5 text-primary" />
+                  <span className="font-medium">Filters:</span>
+                </div>
+
+                <div className="flex flex-wrap gap-4">
+                  <div className="w-full sm:w-auto">
+                    <Select
+                      value={selectedPeriode || ""}
+                      onValueChange={setSelectedPeriode}
+                    >
+                      <SelectTrigger className="w-full sm:w-[180px] bg-white border-gray-200">
+                        <SelectValue placeholder="Pilih periode" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Semua Periode</SelectItem>
+                        {periodes.map((period) => (
+                          <SelectItem
+                            key={period.id}
+                            value={period.id.toString()}
+                          >
+                            {period.tahun}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="w-full sm:w-auto">
+                    <Select
+                      value={selectedStatus || ""}
+                      onValueChange={setSelectedStatus}
+                    >
+                      <SelectTrigger className="w-full sm:w-[180px] bg-white border-gray-200">
+                        <SelectValue placeholder="Pilih status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Semua Status</SelectItem>
+                        <SelectItem value="Draft">Draft</SelectItem>
+                        <SelectItem value="Planning">Planning</SelectItem>
+                        <SelectItem value="Disetujui">Disetujui</SelectItem>
+                        <SelectItem value="Ditolak">Ditolak</SelectItem>
+                        <SelectItem value="Done">Selesai</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="flex justify-center items-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <DataTableCard
+                columns={programColumns}
+                data={programs}
+                title="Program Kerja"
+                description="Kelola program kerja dan pantau perkembangannya"
+                searchColumn="nama"
+                searchPlaceholder="Cari program..."
+                extraActions={
+                  <Button
+                    size="sm"
+                    className="h-10"
+                    onClick={handleCreateProgram}
+                  >
+                    <PlusCircle className="mr-2 h-4 w-4" /> Program Baru
+                  </Button>
+                }
+              />
+            )}
+            {/* Status Change Dialog */}
+            {selectedProgram && (
+              <StatusChangeDialog
+                program={selectedProgram}
+                isOpen={statusDialogOpen}
+                onClose={() => {
+                  setStatusDialogOpen(false);
+                  setSelectedProgram(null);
+                }}
+                onStatusChanged={() => setPrograms([])}
+              />
+            )}
+          </div>
+        </DashboardLayout>
+      )}
+    </RoleGuard>
   );
 }

@@ -4,7 +4,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
-import { DashboardLayout } from "@/components/Dashboard/_layout";
+import { DashboardLayout } from "@/components/Dashboard/layout";
 import { ProgramKerjaForm } from "../../_component/Form";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft } from "lucide-react";
@@ -133,9 +133,9 @@ export default function CreateProgramKerjaPage() {
       <div className="p-6 space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Create Program Kerja</h1>
+            <h1 className="text-2xl font-bold">Buat Program Kerja</h1>
             <p className="text-gray-500 mt-1">
-              Create a new program for the selected point renstra
+              Buat Program Kerja Sesuai dengan Point Renstra Terpilih
             </p>
           </div>
           <Button
@@ -164,7 +164,7 @@ export default function CreateProgramKerjaPage() {
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Bidang</h3>
                 <p className="font-medium">
-                  {pointRenstra.bidang?.nama} ({pointRenstra.bidang?.kode})
+                  {pointRenstra.bidang?.nama}
                 </p>
               </div>
               <div>

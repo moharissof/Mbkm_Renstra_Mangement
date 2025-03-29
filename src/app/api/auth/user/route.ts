@@ -45,7 +45,13 @@ export async function POST(request: NextRequest) {
     // Fetch user data with jabatan information
     const { data: userData, error: userError } = await supabase
       .from("users")
-      .select("*")
+      .select(`
+        *,
+        jabatan:jabatan_id(
+          *,
+          parent:parent_id(*)
+        )
+      `)
       .eq("id", session.user.id)
       .single();
 
@@ -58,7 +64,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Log data for debugging
-    console.log("userData", userData);
+    console.log("userData", userData?.jabatan?.bidang_id);
     console.log("session.user.id", session.user.id);
 
     // Return the user's data

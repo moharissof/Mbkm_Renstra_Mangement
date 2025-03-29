@@ -2,7 +2,7 @@
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
-import { Eye, Pencil, Trash2, FileText, CircleFadingArrowUp } from "lucide-react"
+import { Eye, FileSignature, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
@@ -10,11 +10,9 @@ import { Progress } from "@/components/ui/progress"
 import { format } from "date-fns"
 
 // This is a factory function to create columns with actions
-export const createProgramKerjaColumns = (
+export const PengajuanProgramColumn = (
   onView: (program: any) => void,
-  onEdit: (program: any) => void,
-  onDelete: (program: any) => void,
-  onChangeStatus: (program: any) => void,
+  onApprove?: (program: any) => void,
 ): ColumnDef<any>[] => [
   {
     id: "select",
@@ -94,7 +92,7 @@ export const createProgramKerjaColumns = (
           <Progress value={progress} className="h-2 flex-1" />
           <span className="text-xs font-medium w-8 text-right">{progress}%</span>
         </div>
-      )
+      ) 
     },
   },
   {
@@ -129,11 +127,27 @@ export const createProgramKerjaColumns = (
     },
   },
   {
+    id: "users",
+    header: "Dibuat Oleh",
+    cell: ({ row }) => {
+      const program = row.original.users
+      return <div>{program.name || "-"}</div>
+    },
+  },
+  {
     id: "actions",
     header: "Action",
     cell: ({ row }) => {
       const program = row.original
-
+      const status = program.status
+      console.log('status', status)
+      // Daftar status yang membutuhkan approval
+      const needsApproval = [
+        "Menunggu_Approve_Kabag", 
+        "Menunggu_Approve_Waket",
+        "Planning" // Jika diperlukan
+      ]
+  
       return (
         <div className="flex items-center gap-2">
           <Button
@@ -145,32 +159,24 @@ export const createProgramKerjaColumns = (
           >
             <Eye className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(program)} title="Edit Program">
-            <Pencil className="h-4 w-4 text-gray-500" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => onDelete(program)}
-            title="Delete Program"
-          >
-            <Trash2 className="h-4 w-4 text-gray-500" />
-          </Button>
-          {program.status === "Draft" && (
+          
+          {/* Tombol approve hanya muncul jika: 
+              1. Ada fungsi onApprove 
+              2. Status program membutuhkan approval */}
+          {onApprove && needsApproval.includes(status) && (
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-blue-600"
-              onClick={() => onChangeStatus(program)}
-              title="Submit for Planning"
+              className="h-8 w-8 text-green-600"
+              onClick={() => onApprove(program)}
+              title="Approve Program"
             >
-              <CircleFadingArrowUp className="h-4 w-4" />
+              <FileSignature className="h-4 w-4" />
             </Button>
           )}
         </div>
       )
     },
-  },
+  }
 ]
 

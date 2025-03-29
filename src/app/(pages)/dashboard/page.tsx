@@ -1,8 +1,9 @@
 import { DashboardContainer } from "@/components/Dashboard/container"
 import { CustomersCard, MonthlyTargetCard, MonthlySalesCard, OrdersCard } from "@/components/Dashboard/card"
-import { DashboardLayout } from "@/components/Dashboard/_layout"
+import { DashboardLayout } from "@/components/Dashboard/layout"
 import RoleGuard from "@/middleware/RoleGuard"
 import { Role } from "@/types/user"
+
 
 
 
