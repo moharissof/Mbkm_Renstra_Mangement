@@ -97,22 +97,7 @@ async function main() {
     });
   }
 
-  // Ambil semua data jabatan yang telah di-update
-  const jabatan = await prisma.jabatan.findMany({
-    include: {
-      parent: true,
-      children: true,
-      bidang: true,
-    },
-    orderBy: {
-      id: 'asc',
-    },
-  });
 
-  console.log('Data jabatan berhasil diupdate:');
-  jabatan.forEach(j => {
-    console.log(`- ${j.nama} (${j.bidang.nama})${j.parent ? ` -> ${j.parent.nama}` : ''}`);
-  });
 }
 
 main()
