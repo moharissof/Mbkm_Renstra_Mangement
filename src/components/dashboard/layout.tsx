@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { DashboardHeader } from "./header";
-import { DashboardSidebar } from "./sidebar";
 import type { ReactNode } from "react";
 import { PageLoader } from "../ui/loader";
+import { DashboardSidebar } from "./sidebar";
+import { DashboardHeader } from "./header";
 
 interface DashboardLayoutProps {
   children: ReactNode;

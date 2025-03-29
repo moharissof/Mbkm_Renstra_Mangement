@@ -2,9 +2,11 @@
 import { NextResponse } from "next/server"
 import prisma, { serializeBigInt } from "@/lib/prisma"
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+type Params = Promise<{ id: string }>;
+
+export async function GET(request: Request, { params }: { params: Params }) {
   try {
-    const id = params.id
+    const id = (await params).id
 
     // Find program_kerja by ID with related data
     const programKerja = await prisma.program_kerja.findUnique({
@@ -48,9 +50,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Params }) {
   try {
-    const id = params.id
+    const id = (await params).id
     const body = await request.json()
 
     // Check if program_kerja exists
@@ -177,9 +179,9 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Params }) {
   try {
-    const id = params.id
+    const id = (await params).id
 
     // Check if program_kerja exists
     const existingProgramKerja = await prisma.program_kerja.findUnique({

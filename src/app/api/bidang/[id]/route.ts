@@ -4,11 +4,12 @@ import { PrismaClient } from "@prisma/client";
 import { serializeBigInt } from "@/lib/prisma";
 
 const prisma = new PrismaClient();
+type Params = Promise<{ id: string }>;
 
 // PUT: Update data bidang berdasarkan ID
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } } // params sudah tersedia di sini
+  { params }: { params: Params } // params sudah tersedia di sini
 ) {
   try {
     const { id } = await params; // Langsung akses params.id
@@ -48,7 +49,7 @@ export async function PUT(
 // DELETE: Hapus data bidang berdasarkan ID
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } } // params sudah tersedia di sini
+  { params }: { params: Params } // params sudah tersedia di sini
 ) {
   try {
     const { id } = await params; // Langsung akses params.id

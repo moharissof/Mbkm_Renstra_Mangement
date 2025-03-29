@@ -4,7 +4,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { DashboardLayout } from "@/components/Dashboard/layout";
+import { DashboardLayout } from "@/components/dashboard/layout";
 import { ProgramKerjaForm } from "../../_component/Form";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft } from "lucide-react";

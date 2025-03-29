@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextResponse } from "next/server"
 import prisma, { serializeBigInt } from "@/lib/prisma"
+type Params = Promise<{ id: string }>;
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Params }) {
   try {
-    const id = params.id
+    const id = (await params).id
 
     // Find user by ID with jabatan
     const user = await prisma.users.findUnique({
@@ -35,9 +36,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Params }) {
   try {
-    const id = params.id
+    const id = (await params).id
     const body = await request.json()
 
     // Check if user exists
@@ -103,9 +104,9 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Params }) {
   try {
-    const id = params.id
+    const id = (await params).id
 
     // Check if user exists
     const existingUser = await prisma.users.findUnique({

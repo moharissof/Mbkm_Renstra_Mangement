@@ -2,7 +2,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { DashboardLayout } from "@/components/Dashboard/layout"
+import { DashboardLayout } from "@/components/dashboard/layout"
 import { DataTableCard } from "@/components/DataTable/CardTable"
 import { createPeriodeRenstraColumns } from "./_component/Column"
 import { Button } from "@/components/ui/button"

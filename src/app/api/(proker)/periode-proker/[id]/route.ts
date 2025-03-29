@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server"
 import prisma, { serializeBigInt } from "@/lib/prisma"
-
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+type Params = Promise<{ id: string }>;
+export async function GET(request: Request, { params }: { params: Params }) {
   try {
-    const id = params.id
+    const id = (await params).id
 
     // Find periode_proker by ID with related data
     const periodeProker = await prisma.periode_proker.findUnique({
@@ -27,9 +27,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Params }) {
   try {
-    const id = params.id
+    const id = (await params).id
     const body = await request.json()
 
     // Check if periode_proker exists
@@ -84,9 +84,9 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Params }) {
   try {
-    const id = params.id
+    const id = (await params).id
 
     // Check if periode_proker exists
     const existingPeriodeProker = await prisma.periode_proker.findUnique({

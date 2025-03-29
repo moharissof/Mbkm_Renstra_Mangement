@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server"
 import prisma, { serializeBigInt } from "@/lib/prisma"
+type Params = Promise<{ id: string }>;
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, { params }: { params: Params }) {
   try {
-    const id = params.id
+    const id = (await params).id
 
     // Check if program_kerja exists
     const existingProgram = await prisma.program_kerja.findUnique({
