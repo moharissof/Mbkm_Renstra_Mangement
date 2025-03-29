@@ -193,7 +193,7 @@ export async function DELETE(request: Request, { params }: { params: Params }) {
     }
 
     // Start a transaction
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       // Delete related indikator_proker
       await tx.indikator_proker.deleteMany({
         where: { proker_id: BigInt(id) },
