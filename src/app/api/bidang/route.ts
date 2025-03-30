@@ -9,11 +9,11 @@ export async function GET() {
     const bidang = await prisma.bidang.findMany();
 
     // Konversi BigInt ke string
-    const serializedBidang = bidang.map((b) => ({
+    const serializedBidang = bidang.map((b: { id: bigint }) => ({
       ...b,
-      id: b.id.toString(), // Konversi BigInt ke string
+      id: b.id.toString(), // Convert BigInt to string
     }));
-
+    
     console.log("Data bidang:", serializedBidang);
     return NextResponse.json(serializedBidang);
   } catch (error) {
