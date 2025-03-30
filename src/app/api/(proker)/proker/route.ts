@@ -111,13 +111,15 @@ export async function POST(request: Request) {
       !body.waktu_mulai ||
       !body.waktu_selesai ||
       !body.volume ||
-      !body.indikator_proker
+      !body.indikator_proker 
     ) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
     // Start a transaction
     const result = await prisma.$transaction(async (tx : any) => {
+
+      // Check role and user_id
       // Create program_kerja
       const newProgramKerja = await tx.program_kerja.create({
         data: {

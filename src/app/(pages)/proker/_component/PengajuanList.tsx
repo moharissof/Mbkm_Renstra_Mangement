@@ -2,7 +2,7 @@
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
-import { Eye, FileSignature, FileText } from "lucide-react"
+import { BadgeCheck, Eye, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
@@ -140,13 +140,18 @@ export const PengajuanProgramColumn = (
     cell: ({ row }) => {
       const program = row.original
       const status = program.status
-      console.log('status', status)
-      // Daftar status yang membutuhkan approval
+      console.log('Current status:', status) // Perhatikan case-nya
+      
+      // Pastikan penulisan status konsisten (case sensitive)
       const needsApproval = [
         "Menunggu_Approve_Kabag", 
         "Menunggu_Approve_Waket",
-        "Planning" // Jika diperlukan
+        "Planning" // Pastikan sama persis dengan yang ada di data
       ]
+  
+      // Debug: Tampilkan apakah status termasuk dalam needsApproval
+      console.log('Is status in needsApproval?', needsApproval.includes(status))
+      console.log('Is onApprove defined?', !!onApprove)
   
       return (
         <div className="flex items-center gap-2">
@@ -160,10 +165,8 @@ export const PengajuanProgramColumn = (
             <Eye className="h-4 w-4" />
           </Button>
           
-          {/* Tombol approve hanya muncul jika: 
-              1. Ada fungsi onApprove 
-              2. Status program membutuhkan approval */}
-          {onApprove && needsApproval.includes(status) && (
+          {/* Tambahkan pengecekan onApprove dan status */}
+          {onApprove && needsApproval.some(s => s === status) && (
             <Button
               variant="ghost"
               size="icon"
@@ -171,7 +174,7 @@ export const PengajuanProgramColumn = (
               onClick={() => onApprove(program)}
               title="Approve Program"
             >
-              <FileSignature className="h-4 w-4" />
+              <BadgeCheck className="h-4 w-4" />
             </Button>
           )}
         </div>

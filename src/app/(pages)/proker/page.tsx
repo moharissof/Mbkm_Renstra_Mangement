@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/dashboard/layout";
 import { Button } from "@/components/ui/button";
-import { StatusChangeDialog } from "./_component/Modal";
+import { StatusChangeDialog } from "./_component/ModalPengajuan";
 import RoleGuard from "@/middleware/RoleGuard";
 import { Role } from "@/types/user";
 import { useToast } from "@/hooks/use-toast";
@@ -24,7 +24,10 @@ import {
 
 export default function ProgramKerjaPage() {
   const router = useRouter();
-  const [user, setUser] = useState<{ id?: string }>({});
+  const [user, setUser] = useState<{
+    [x: string]: any;
+    id?: string;
+  }>({});
   const { error: showError } = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -284,7 +287,7 @@ export default function ProgramKerjaPage() {
               <div className="flex justify-center items-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
-            ) : (
+            ) : ( 
               <DataTableCard
                 columns={programColumns}
                 data={programs}
@@ -308,6 +311,7 @@ export default function ProgramKerjaPage() {
               <StatusChangeDialog
                 program={selectedProgram}
                 isOpen={statusDialogOpen}
+                role={user?.jabatan?.role || "Staff_Kabag"} // Changed User to user and added optional chaining
                 onClose={() => {
                   setStatusDialogOpen(false);
                   setSelectedProgram(null);

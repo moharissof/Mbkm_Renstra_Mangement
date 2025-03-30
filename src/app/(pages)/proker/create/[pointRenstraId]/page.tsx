@@ -116,7 +116,7 @@ export default function CreateProgramKerjaPage() {
               </p>
               <Button
                 onClick={() =>
-                  router.push("/program-kerja/select-point-renstra")
+                  router.push("/proker/renstra")
                 }
               >
                 <ArrowLeft className="mr-2 h-4 w-4" /> Go Back

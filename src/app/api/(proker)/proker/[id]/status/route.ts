@@ -6,11 +6,15 @@ export async function PUT(request: Request, { params }: { params: Params }) {
   try {
     const id = (await params).id
     const body = await request.json()
+    console.log("Request body:", body)
 
     // Validate status
     if (!body.status) {
       return NextResponse.json({ error: "Status is required" }, { status: 400 })
-    }
+    } 
+
+
+    const first_approval_status = body.status === "Menunggu_Approve_Waket" ? "Approve" : null;
 
     // Check if program_kerja exists
     const existingProgramKerja = await prisma.program_kerja.findUnique({
@@ -21,22 +25,12 @@ export async function PUT(request: Request, { params }: { params: Params }) {
       return NextResponse.json({ error: "Program kerja not found" }, { status: 404 })
     }
 
-    // Validate status transition
-    if (existingProgramKerja.status === "Draft" && body.status !== "Planning") {
-      return NextResponse.json(
-        { error: "Invalid status transition. Draft can only be changed to Planning" },
-        { status: 400 },
-      )
-    }
-
-    if (existingProgramKerja.status !== "Draft" && body.status === "Planning") {
-      return NextResponse.json({ error: "Only Draft programs can be changed to Planning" }, { status: 400 })
-    }
 
     // Update program_kerja status
     const updatedProgramKerja = await prisma.program_kerja.update({
       where: { id: BigInt(id) },
       data: {
+        first_approval_status: first_approval_status,
         status: body.status,
         updated_at: new Date(),
       },

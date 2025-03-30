@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 interface StatusChangeDialogProps {
   program: any;
   isOpen: boolean;
+  role: string;
   onClose: () => void;
   onStatusChanged: () => void;
 }
@@ -24,6 +25,7 @@ interface StatusChangeDialogProps {
 export function StatusChangeDialog({
   program,
   isOpen,
+  role,
   onClose,
   onStatusChanged,
 }: StatusChangeDialogProps) {
@@ -32,7 +34,7 @@ export function StatusChangeDialog({
 
   const handleStatusChange = async () => {
     if (!program) return;
-
+    const status = role === "Kabag" ? "Menunggu_Approve_Waket" : "Planning";
     setIsLoading(true);
     try {
       const response = await fetch(`/api/proker/${program.id}/status`, {
@@ -41,7 +43,7 @@ export function StatusChangeDialog({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          status: "Planning",
+          status: status,
         }),
       });
 
