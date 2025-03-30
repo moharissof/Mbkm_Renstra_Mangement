@@ -117,7 +117,7 @@ export async function POST(request: Request) {
     }
 
     // Start a transaction
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx : any) => {
       // Create program_kerja
       const newProgramKerja = await tx.program_kerja.create({
         data: {
