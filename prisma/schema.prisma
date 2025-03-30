@@ -1,0 +1,212 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+  schemas = ["public"]
+}
+
+enum role {
+  Admin
+  Ketua
+  Waket_1
+  Waket_2
+  Kabag
+  Staff_Kabag
+
+  @@schema("public")
+}
+
+model users {
+  id           String    @id @default(cuid())
+  nikp         String?
+  name         String
+  email        String
+  photo        String?
+  no_telp      String
+  isVerified   Boolean   @default(false)
+  password     String
+  jabatan_id   BigInt?
+  last_login_at DateTime?
+  created_at   DateTime?
+  updated_at   DateTime?
+  jabatan      jabatan?  @relation(fields: [jabatan_id], references: [id])
+  program_kerja program_kerja[]
+  @@schema("public")
+}
+
+model bidang {
+  id          BigInt    @id @default(autoincrement())
+  nama        String
+  deskripsi   String?
+  created_at  DateTime?
+  updated_at  DateTime?
+  jabatan     jabatan[]
+  point_renstra point_renstra[]
+
+  @@schema("public")
+  
+}
+
+model jabatan {
+  id          BigInt    @id @default(autoincrement())
+  nama        String
+  deskripsi   String?
+  role        role
+  parent_id   BigInt?
+  bidang_id   BigInt
+  created_at  DateTime?
+  updated_at  DateTime?
+  users       users[]
+  parent      jabatan?  @relation("jabatanHierarchy", fields: [parent_id], references: [id])
+  children    jabatan[] @relation("jabatanHierarchy")
+  bidang      bidang    @relation(fields: [bidang_id], references: [id])
+  
+  @@schema("public")
+}
+
+enum Status {
+  Aktif
+  Diarsipkan
+  @@schema("public")
+}
+
+model periode_renstra {
+  id          BigInt    @id @default(autoincrement())
+  nama        String
+  tahun_awal  Int
+  tahun_akhir Int
+  status      Status    @default(Aktif) // Gunakan enum Status
+  renstra renstra[]
+  created_at  DateTime?
+  updated_at  DateTime?
+  @@schema("public")
+}
+
+model renstra {
+  id          BigInt         @id @default(autoincrement())
+  periode_id  BigInt
+  nama        String
+  created_at  DateTime?
+  updated_at  DateTime?
+  periode     periode_renstra @relation(fields: [periode_id], references: [id])
+  sub_renstra sub_renstra[]
+  point_renstra point_renstra[]
+
+  @@schema("public")
+}
+
+model sub_renstra {
+  id          BigInt    @id @default(autoincrement())
+  renstra_id  BigInt
+  nama        String
+  created_at  DateTime?
+  updated_at  DateTime?
+  renstra     renstra   @relation(fields: [renstra_id], references: [id])
+  point_renstra point_renstra[]
+  @@schema("public")
+}
+
+model point_renstra {
+  id             BigInt    @id @default(autoincrement())
+  renstra_id     BigInt
+  sub_renstra_id BigInt
+  nama           String
+  presentase     Float?
+  bidang_id      BigInt
+  created_at     DateTime?
+  updated_at     DateTime?
+  renstra        renstra   @relation(fields: [renstra_id], references: [id])
+  sub_renstra    sub_renstra @relation(fields: [sub_renstra_id], references: [id])
+  bidang         bidang    @relation(fields: [bidang_id], references: [id])
+  program_kerja program_kerja[]
+  @@schema("public")
+}
+
+model periode_proker {
+  id              BigInt      @id @default(autoincrement())
+  tahun           String      @unique
+  tanggal_mulai   DateTime
+  tanggal_selesai DateTime
+  created_at      DateTime?
+  updated_at      DateTime?
+  program_kerja   program_kerja[]
+  @@schema("public")
+}
+
+enum Status_Proker {
+  Draft
+  Planning
+  Menunggu_Approve_Kabag // Status baru
+  Menunggu_Approve_Waket // Status baru
+  Disetujui
+  Ditolak
+  On_Progress
+  Done
+  @@schema("public")
+}
+
+model program_kerja {
+  id                      BigInt      @id @default(autoincrement())
+  point_renstra_id        BigInt
+  nama                    String
+  deskripsi               String?
+  strategi_pencapaian     String?
+  progress                Float       @default(0.0)
+  baseline                String?
+  waktu_mulai             DateTime
+  waktu_selesai           DateTime
+  anggaran                BigInt?
+  volume                  Int
+  status                  Status_Proker
+  first_approval_status   String?
+  status_periode_first    String?
+  second_approval_status  String?
+  status_periode_second   String?
+  user_id                 String
+  periode_proker_id       BigInt
+  alasan_penolakan        String?
+  point_renstra           point_renstra @relation(fields: [point_renstra_id], references: [id])
+  periode_proker          periode_proker @relation(fields: [periode_proker_id], references: [id])
+  indikator_proker        indikator_proker[]
+  point_standar           point_standar[] 
+  users                   users @relation(fields: [user_id], references: [id])
+  created_at              DateTime?
+  updated_at              DateTime?
+  @@schema("public")
+}
+
+
+
+
+model indikator_proker {
+  id              BigInt      @id @default(autoincrement())
+  proker_id       BigInt
+  nama            String
+  target          String
+  satuan          String
+  created_at      DateTime?
+  updated_at      DateTime?
+  program_kerja   program_kerja @relation(fields: [proker_id], references: [id])
+  @@schema("public")
+}
+
+model point_standar {
+  id          BigInt    @id @default(autoincrement())
+  nama        String
+  point       Int
+  created_at  DateTime?
+  updated_at  DateTime?
+  program_kerja program_kerja[]
+  @@schema("public")
+}
+
+
+
