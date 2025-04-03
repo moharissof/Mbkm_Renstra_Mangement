@@ -5,7 +5,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { Clock, Calendar, LockIcon, Filter, Eye} from "lucide-react";
+import { Clock, Calendar, LockIcon, Filter, Eye } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -360,7 +360,6 @@ export default function ApprovedProgramsPage() {
                         <Eye className="mr-2 h-4 w-4" />
                         Detail Program
                       </Button>
-
                       {program.status === "Disetujui" && (
                         <Button
                           className="w-full"
@@ -372,24 +371,45 @@ export default function ApprovedProgramsPage() {
                       )}
 
                       {program.status === "On_Progress" && (
-                        <Button
-                          className="w-full"
-                          onClick={() => router.push(`/proker/${program.id}`)}
-                        >
-                          Liat Perkembangan
-                        </Button>
+                        <div className="flex flex-col gap-2">
+                          <Button
+                            className="w-full"
+                            onClick={() =>
+                              router.push(`/proker/${program.id}/reports`)
+                            }
+                          >
+                            Liat Laporan
+                          </Button>
+                          <Button
+                            className="w-full"
+                            onClick={() =>
+                              router.push(`/proker/${program.id}/file`)
+                            }
+                          >
+                            Liat File
+                          </Button>
+                        </div>
                       )}
 
                       {program.status === "Done" && (
-                        <Button
-                          className="w-full"
-                          variant="secondary"
-                          onClick={() =>
-                            router.push(`/program-kerja/${program.id}`)
-                          }
-                        >
-                          Lihat Detail
-                        </Button>
+                        <div className="flex flex-col gap-2">
+                          <Button
+                            className="w-full"
+                            onClick={() =>
+                              router.push(`/proker/${program.id}/reports`)
+                            }
+                          >
+                            Liat Laporan
+                          </Button>
+                          <Button
+                            className="w-full"
+                            onClick={() =>
+                              router.push(`/proker/${program.id}/file`)
+                            }
+                          >
+                            Liat File
+                          </Button>
+                        </div>
                       )}
                     </div>
                   </CardFooter>

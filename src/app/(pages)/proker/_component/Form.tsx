@@ -1,40 +1,34 @@
+ 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Plus, Trash2 } from "lucide-react";
-import { format } from "date-fns";
+import { useState, useEffect } from "react"
+import { useForm, useFieldArray } from "react-hook-form"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Loader2, Plus, Trash2 } from "lucide-react"
+import { format } from "date-fns"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface ProgramKerjaFormProps {
-  pointRenstra: any;
-  periode: any;
-  programKerja?: any;
-  onSubmit: (data: any) => Promise<void>;
-  mode: "create" | "edit";
+  pointRenstra: any
+  periode: any
+  programKerja?: any
+  onSubmit: (data: any) => Promise<void>
+  mode: "create" | "edit"
 }
 
-export function ProgramKerjaForm({
-  pointRenstra,
-  periode,
-  programKerja,
-  onSubmit,
-  mode,
-}: ProgramKerjaFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [user, setUser] = useState<any>(null); // State untuk menyimpan data user
-
+export function ProgramKerjaForm({ pointRenstra, periode, programKerja, onSubmit, mode }: ProgramKerjaFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [user, setUser] = useState<any>(null) // State untuk menyimpan data user
+  const [periodeProkerList, setPeriodeProkerList] = useState<any[]>([])
+  const [loadingPeriode, setLoadingPeriode] = useState(true)
+  const [selectedPeriodeId, setSelectedPeriodeId] = useState<string | null>(
+    mode === "edit" && programKerja?.periode_proker_id ? programKerja.periode_proker_id : "",
+  )
   // Fetch user data on component mount
   useEffect(() => {
     const fetchUser = async () => {
@@ -44,22 +38,40 @@ export function ProgramKerjaForm({
           headers: {
             "Content-Type": "application/json",
           },
-        });
-        const { user: userData } = await response.json();
-        setUser(userData); // Simpan data user ke state
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
+        })
+        const { user: userData } = await response.json()
+        setUser(userData) // Simpan data user ke state
 
-    fetchUser();
-  }, []);
+        // Fetch periode data
+        const periodeResponse = await fetch(`/api/periode-proker`)
+        const periodeData = await periodeResponse.json()
+
+        // Extract the periodeProker array from the response
+        if (periodeData && periodeData.periodeProker && Array.isArray(periodeData.periodeProker)) {
+          setPeriodeProkerList(periodeData.periodeProker)
+          console.log("Periode data loaded:", periodeData.periodeProker)
+        } else {
+          console.error("Unexpected periode data format:", periodeData)
+          setPeriodeProkerList([])
+        }
+
+        setLoadingPeriode(false)
+      } catch (error) {
+        console.error("Error fetching data:", error)
+        setPeriodeProkerList([])
+        setLoadingPeriode(false)
+      }
+    }
+
+    fetchUser()
+  }, [])
 
   // Initialize form with default values or existing data
   const {
     register,
     control,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues:
@@ -69,42 +81,32 @@ export function ProgramKerjaForm({
             deskripsi: programKerja.deskripsi || "",
             strategi_pencapaian: programKerja.strategi_pencapaian || "",
             baseline: programKerja.baseline || "",
-            waktu_mulai: programKerja.waktu_mulai
-              ? format(new Date(programKerja.waktu_mulai), "yyyy-MM-dd")
-              : "",
-            waktu_selesai: programKerja.waktu_selesai
-              ? format(new Date(programKerja.waktu_selesai), "yyyy-MM-dd")
-              : "",
-            anggaran: programKerja.anggaran
-              ? Number(programKerja.anggaran)
-              : "",
+            waktu_mulai: programKerja.waktu_mulai ? format(new Date(programKerja.waktu_mulai), "yyyy-MM-dd") : "",
+            waktu_selesai: programKerja.waktu_selesai ? format(new Date(programKerja.waktu_selesai), "yyyy-MM-dd") : "",
+            anggaran: programKerja.anggaran ? Number(programKerja.anggaran) : "",
             volume: programKerja.volume || 1,
-            indikator_proker: programKerja.indikator_proker || [
-              { nama: "", target: "", satuan: "" },
-            ],
+            periode_proker_id: programKerja.periode_proker_id || "",
+            indikator_proker: programKerja.indikator_proker || [{ nama: "", target: "", satuan: "" }],
             point_standar: programKerja.point_standar?.map((ps: any) => ({
               id: ps.id, // tambahkan ini jika diperlukan
-              nama: ps.nama, 
-              point: ps.point
-            })) || [{ nama: "", point: 0 }]
+              nama: ps.nama,
+              point: ps.point,
+            })) || [{ nama: "", point: 0 }],
           }
         : {
             nama: "",
             deskripsi: "",
             strategi_pencapaian: "",
             baseline: "",
-            waktu_mulai: periode?.tanggal_mulai
-              ? format(new Date(periode.tanggal_mulai), "yyyy-MM-dd")
-              : "",
-            waktu_selesai: periode?.tanggal_selesai
-              ? format(new Date(periode.tanggal_selesai), "yyyy-MM-dd")
-              : "",
+            periode_proker_id: "",
+            waktu_mulai: periode?.tanggal_mulai ? format(new Date(periode.tanggal_mulai), "yyyy-MM-dd") : "",
+            waktu_selesai: periode?.tanggal_selesai ? format(new Date(periode.tanggal_selesai), "yyyy-MM-dd") : "",
             anggaran: "",
             volume: 1,
             indikator_proker: [{ nama: "", target: "", satuan: "" }],
             point_standar: [{ nama: "", point: 0 }],
           },
-  });
+  })
 
   // Field array for dynamic indikator_proker fields
   const {
@@ -114,20 +116,20 @@ export function ProgramKerjaForm({
   } = useFieldArray({
     control,
     name: "indikator_proker",
-  });
+  })
   const { fields, append, remove } = useFieldArray({
     control,
     name: "point_standar",
-  });
+  })
 
   const onFormSubmit = async (data: any) => {
-    setIsSubmitting(true);
+    setIsSubmitting(true)
     try {
       // Prepare data for submission
       const formData = {
         ...data,
         point_renstra_id: pointRenstra.id,
-        periode_proker_id: periode.id,
+        periode_proker_id: data.periode_proker_id,
         user_id: user?.id, // Gunakan user.id dari state
         status: "Draft", // Default status for new programs
         progress: 0, // Default progress for new programs
@@ -139,15 +141,15 @@ export function ProgramKerjaForm({
           nama: ps.nama,
           point: Number(ps.point),
         })),
-      };
+      }
 
-      await onSubmit(formData);
+      await onSubmit(formData)
     } catch (error) {
-      console.error("Form submission error:", error);
+      console.error("Form submission error:", error)
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit(onFormSubmit)}>
@@ -155,11 +157,55 @@ export function ProgramKerjaForm({
         <Card>
           <CardHeader>
             <CardTitle>Detail Program</CardTitle>
-            <CardDescription>
-              Masukkan informasi dasar tentang program
-            </CardDescription>
+            <CardDescription>Masukkan informasi dasar tentang program</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 gap-4">
+              {/* Tambahkan Select Periode Proker */}
+              <div className="space-y-2">
+                <Label htmlFor="periode_proker_id">
+                  Periode Proker <span className="text-red-500">*</span>
+                </Label>
+                {loadingPeriode ? (
+                  <Input disabled placeholder="Memuat data periode..." />
+                ) : periodeProkerList.length === 0 ? (
+                  <div className="text-sm text-red-500">Tidak ada data periode tersedia</div>
+                ) : (
+                  <Select
+                    value={selectedPeriodeId || ""}
+                    onValueChange={(value) => {
+                      setSelectedPeriodeId(value)
+                      setValue("periode_proker_id", value)
+                      // Set tanggal otomatis ketika periode dipilih
+                      const selectedPeriode = periodeProkerList.find((p) => p.id === value)
+                      if (selectedPeriode) {
+                        if (selectedPeriode.tanggal_mulai) {
+                          setValue("waktu_mulai", format(new Date(selectedPeriode.tanggal_mulai), "yyyy-MM-dd"))
+                        }
+                        if (selectedPeriode.tanggal_selesai) {
+                          setValue("waktu_selesai", format(new Date(selectedPeriode.tanggal_selesai), "yyyy-MM-dd"))
+                        }
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih Periode Proker" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {periodeProkerList.map((periode) => (
+                        <SelectItem key={periode.id} value={periode.id}>
+                          {periode.tahun} - {format(new Date(periode.tanggal_mulai), "dd/MM/yyyy")} s/d{" "}
+                          {format(new Date(periode.tanggal_selesai), "dd/MM/yyyy")}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                {errors.periode_proker_id && (
+                  <p className="text-sm text-red-500">{errors.periode_proker_id.message as string}</p>
+                )}
+              </div>
+            </div>
             <div className="grid grid-cols-1 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="nama">
@@ -172,21 +218,12 @@ export function ProgramKerjaForm({
                     required: "Nama program wajib diisi",
                   })}
                 />
-                {errors.nama && (
-                  <p className="text-sm text-red-500">
-                    {errors.nama.message as string}
-                  </p>
-                )}
+                {errors.nama && <p className="text-sm text-red-500">{errors.nama.message as string}</p>}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="deskripsi">Deskripsi</Label>
-                <Textarea
-                  id="deskripsi"
-                  placeholder="Masukkan deskripsi program"
-                  rows={3}
-                  {...register("deskripsi")}
-                />
+                <Textarea id="deskripsi" placeholder="Masukkan deskripsi program" rows={3} {...register("deskripsi")} />
               </div>
 
               <div className="space-y-2">
@@ -201,11 +238,7 @@ export function ProgramKerjaForm({
 
               <div className="space-y-2">
                 <Label htmlFor="baseline">Baseline</Label>
-                <Input
-                  id="baseline"
-                  placeholder="Masukkan baseline"
-                  {...register("baseline")}
-                />
+                <Input id="baseline" placeholder="Masukkan baseline" {...register("baseline")} />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -220,11 +253,7 @@ export function ProgramKerjaForm({
                       required: "Tanggal mulai wajib diisi",
                     })}
                   />
-                  {errors.waktu_mulai && (
-                    <p className="text-sm text-red-500">
-                      {errors.waktu_mulai.message as string}
-                    </p>
-                  )}
+                  {errors.waktu_mulai && <p className="text-sm text-red-500">{errors.waktu_mulai.message as string}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -239,9 +268,7 @@ export function ProgramKerjaForm({
                     })}
                   />
                   {errors.waktu_selesai && (
-                    <p className="text-sm text-red-500">
-                      {errors.waktu_selesai.message as string}
-                    </p>
+                    <p className="text-sm text-red-500">{errors.waktu_selesai.message as string}</p>
                   )}
                 </div>
               </div>
@@ -255,17 +282,10 @@ export function ProgramKerjaForm({
                     placeholder="Masukkan jumlah anggaran"
                     {...register("anggaran", {
                       valueAsNumber: true,
-                      validate: (value) =>
-                        !value ||
-                        Number(value) >= 0 ||
-                        "Anggaran harus berupa angka positif",
+                      validate: (value) => !value || Number(value) >= 0 || "Anggaran harus berupa angka positif",
                     })}
                   />
-                  {errors.anggaran && (
-                    <p className="text-sm text-red-500">
-                      {errors.anggaran.message as string}
-                    </p>
-                  )}
+                  {errors.anggaran && <p className="text-sm text-red-500">{errors.anggaran.message as string}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -279,15 +299,10 @@ export function ProgramKerjaForm({
                     {...register("volume", {
                       required: "Volume wajib diisi",
                       valueAsNumber: true,
-                      validate: (value) =>
-                        value > 0 || "Volume harus lebih besar dari 0",
+                      validate: (value) => value > 0 || "Volume harus lebih besar dari 0",
                     })}
                   />
-                  {errors.volume && (
-                    <p className="text-sm text-red-500">
-                      {errors.volume.message as string}
-                    </p>
-                  )}
+                  {errors.volume && <p className="text-sm text-red-500">{errors.volume.message as string}</p>}
                 </div>
               </div>
             </div>
@@ -297,16 +312,11 @@ export function ProgramKerjaForm({
         <Card>
           <CardHeader>
             <CardTitle>Indikator Program</CardTitle>
-            <CardDescription>
-              Tambahkan satu atau lebih indikator untuk program ini
-            </CardDescription>
+            <CardDescription>Tambahkan satu atau lebih indikator untuk program ini</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {indikatorFields.map((field, index) => (
-              <div
-                key={field.id}
-                className="grid grid-cols-1 gap-4 p-4 border rounded-md relative"
-              >
+              <div key={field.id} className="grid grid-cols-1 gap-4 p-4 border rounded-md relative">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor={`indikator_proker.${index}.nama`}>
@@ -328,12 +338,9 @@ export function ProgramKerjaForm({
                     <Input
                       id={`indikator_proker.${index}.target`}
                       placeholder="Masukkan target"
-                      {...register(
-                        `indikator_proker.${index}.target` as const,
-                        {
-                          required: "Target wajib diisi",
-                        }
-                      )}
+                      {...register(`indikator_proker.${index}.target` as const, {
+                        required: "Target wajib diisi",
+                      })}
                     />
                   </div>
 
@@ -344,12 +351,9 @@ export function ProgramKerjaForm({
                     <Input
                       id={`indikator_proker.${index}.satuan`}
                       placeholder="Masukkan satuan (contoh: %, orang, dokumen)"
-                      {...register(
-                        `indikator_proker.${index}.satuan` as const,
-                        {
-                          required: "Satuan wajib diisi",
-                        }
-                      )}
+                      {...register(`indikator_proker.${index}.satuan` as const, {
+                        required: "Satuan wajib diisi",
+                      })}
                     />
                   </div>
                 </div>
@@ -372,9 +376,7 @@ export function ProgramKerjaForm({
               type="button"
               variant="outline"
               className="w-full"
-              onClick={() =>
-                appendIndikator({ nama: "", target: "", satuan: "" })
-              }
+              onClick={() => appendIndikator({ nama: "", target: "", satuan: "" })}
             >
               <Plus className="mr-2 h-4 w-4" /> Tambah Indikator
             </Button>
@@ -384,16 +386,11 @@ export function ProgramKerjaForm({
         <Card>
           <CardHeader>
             <CardTitle>Point Standar</CardTitle>
-            <CardDescription>
-              Tambahkan satu atau lebih point standar untuk program ini
-            </CardDescription>
+            <CardDescription>Tambahkan satu atau lebih point standar untuk program ini</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {fields.map((field, index) => (
-              <div
-                key={field.id}
-                className="grid grid-cols-1 gap-4 p-4 border rounded-md relative"
-              >
+              <div key={field.id} className="grid grid-cols-1 gap-4 p-4 border rounded-md relative">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor={`point_standar.${index}.nama`}>
@@ -419,8 +416,7 @@ export function ProgramKerjaForm({
                       {...register(`point_standar.${index}.point` as const, {
                         required: "Nilai point wajib diisi",
                         valueAsNumber: true,
-                        validate: (value) =>
-                          value > 0 || "Nilai point harus lebih besar dari 0",
+                        validate: (value) => value > 0 || "Nilai point harus lebih besar dari 0",
                       })}
                     />
                   </div>
@@ -440,12 +436,7 @@ export function ProgramKerjaForm({
               </div>
             ))}
 
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={() => append({ nama: "", point: 0 })}
-            >
+            <Button type="button" variant="outline" className="w-full" onClick={() => append({ nama: "", point: 0 })}>
               <Plus className="mr-2 h-4 w-4" /> Tambah Point Standar
             </Button>
           </CardContent>
@@ -467,5 +458,6 @@ export function ProgramKerjaForm({
         </div>
       </div>
     </form>
-  );
+  )
 }
+

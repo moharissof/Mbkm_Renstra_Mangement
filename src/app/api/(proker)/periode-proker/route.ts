@@ -2,6 +2,8 @@
 import { NextResponse } from "next/server"
 import prisma, { serializeBigInt } from "@/lib/prisma"
 
+
+
 export async function GET(request: Request) {
   try {
     // Get URL and search params

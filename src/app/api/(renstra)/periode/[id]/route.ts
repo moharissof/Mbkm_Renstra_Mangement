@@ -2,6 +2,32 @@ import { NextResponse } from "next/server";
 import { prisma, serializeBigInt } from "@/lib/prisma";
 type Params = Promise<{ id: string }>;
 
+export async function GET(request: Request, { params }: { params: Params }) {
+  try {
+    const periodeRenstra = await prisma.periode_renstra.findUnique({
+      where: { id: BigInt((await params).id) },
+      include: {
+        renstra: true // Anda bisa menambahkan relasi lain jika diperlukan
+      }
+    });
+
+    if (!periodeRenstra) {
+      return NextResponse.json(
+        { error: "Periode renstra not found" },
+        { status: 404 }
+      );
+    }
+
+    const serializedData = serializeBigInt(periodeRenstra);
+    return NextResponse.json(serializedData);
+  } catch (error) {
+    console.error("Error fetching periode renstra:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch periode renstra" },
+      { status: 500 }
+    );
+  }
+}
 
 export async function PUT(request: Request, { params }: { params: Params  }) {
     try {

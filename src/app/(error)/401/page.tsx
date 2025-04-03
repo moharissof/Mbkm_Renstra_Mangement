@@ -17,7 +17,7 @@ export default function UnauthorizedPage() {
         </div>
         <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">Access Denied</h2>
         <p className="mt-2 text-center text-gray-600">
-          Ojo Macem - Macem Akses Seng Biso Kanggo Iro
+          Ojo Macem - Macem Akses Seng Biso Kanggo Iro Hun Keplak rainiro
         </p>
         <div className="mt-6">
           <Button onClick={() => router.push("/")} className="w-full">

@@ -39,6 +39,10 @@ model users {
   updated_at   DateTime?
   jabatan      jabatan?  @relation(fields: [jabatan_id], references: [id])
   program_kerja program_kerja[]
+  laporan     laporan[]
+  komentar   komentar[]
+  activity_log activity_log[]
+  file        file[]
   @@schema("public")
 }
 
@@ -143,9 +147,8 @@ model periode_proker {
 
 enum Status_Proker {
   Draft
-  Planning
-  Menunggu_Approve_Kabag // Status baru
-  Menunggu_Approve_Waket // Status baru
+  Planning 
+  Menunggu_Approve_Waket 
   Disetujui
   Ditolak
   On_Progress
@@ -178,13 +181,13 @@ model program_kerja {
   indikator_proker        indikator_proker[]
   point_standar           point_standar[] 
   users                   users @relation(fields: [user_id], references: [id])
+  laporan                 laporan[]
+  file                    file[]
+  komentar                komentar[]
   created_at              DateTime?
   updated_at              DateTime?
   @@schema("public")
 }
-
-
-
 
 model indikator_proker {
   id              BigInt      @id @default(autoincrement())
@@ -206,6 +209,73 @@ model point_standar {
   updated_at  DateTime?
   program_kerja program_kerja[]
   @@schema("public")
+}
+
+model laporan {
+  id              BigInt      @id @default(autoincrement())
+  program_kerja_id BigInt
+  user_id         String
+  laporan         String?
+  realisasi       Int?
+  link_file       String?
+  created_at      DateTime?
+  updated_at      DateTime?
+  program_kerja   program_kerja @relation(fields: [program_kerja_id], references: [id])
+  users           users @relation(fields: [user_id], references: [id])
+  komentar        komentar[]
+  @@schema("public")
+}
+
+model file {
+  id            BigInt    @id @default(autoincrement())
+  proker_id     BigInt
+  user_id       String
+  file          String
+  link_drive    String
+  drive_file_id String?
+  mime_type     String?
+  thumbnail_url String?
+  deleted_at    DateTime?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  
+  program_kerja program_kerja @relation(fields: [proker_id], references: [id])
+  users       users        @relation(fields: [user_id], references: [id])
+  
+  @@schema("public")
+}
+
+
+model komentar {
+  id          BigInt    @id @default(autoincrement())
+  program_kerja_id BigInt
+  laporan_id     BigInt?
+  user_id     String
+  comment     String?
+  created_at  DateTime?
+  updated_at  DateTime?
+  program_kerja program_kerja @relation(fields: [program_kerja_id], references: [id])
+  users       users @relation(fields: [user_id], references: [id])
+  laporan    laporan? @relation(fields: [laporan_id], references: [id])
+  @@schema("public")
+}
+
+model activity_log {
+  id          BigInt    @id @default(autoincrement())
+  action      String    // CREATE, UPDATE, DELETE, APPROVE, etc.
+  entityType  String    // "ProgramKerja", "Laporan", etc.
+  entityId    BigInt    // ID dari entitas terkait
+  oldData     Json?     // Data sebelum perubahan (untuk update)
+  newData     Json?     // Data setelah perubahan
+  description String?
+  userId      String
+  user        users     @relation(fields: [userId], references: [id])
+  createdAt   DateTime  @default(now())
+  ipAddress   String?
+  userAgent   String?
+  @@schema("public")
+  @@index([entityType, entityId])
+  @@index([createdAt])
 }
 
 

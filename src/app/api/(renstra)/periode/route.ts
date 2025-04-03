@@ -21,7 +21,8 @@ export async function POST(request: Request) {
     const newPeriodeRenstra = await prisma.periode_renstra.create({
       data: body,
     });
-    return NextResponse.json(newPeriodeRenstra, { status: 201 });
+    const Perioderenstra = serializeBigInt(newPeriodeRenstra); // Serialize BigInt
+    return NextResponse.json(Perioderenstra, { status: 201 });
   } catch (error) {
     console.error("Error creating periode renstra:", error);
     return NextResponse.json(

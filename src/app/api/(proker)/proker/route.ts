@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server"
 import prisma, { serializeBigInt } from "@/lib/prisma"
+import { logAction } from '@/lib/logger'
 
 export async function GET(request: Request) {
   try {
@@ -115,7 +116,7 @@ export async function POST(request: Request) {
     ) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
-
+    
     // Start a transaction
     const result = await prisma.$transaction(async (tx : any) => {
 
@@ -194,7 +195,15 @@ export async function POST(request: Request) {
         },
       })
     })
-
+    // Log activity
+    await logAction({
+      action: 'CREATE',
+      entityType: 'ProgramKerja',
+      entityId: result.id,
+      userId: result.user_id,
+      newData: result,
+      request
+    })
     // Serialize BigInt values before sending the response
     const serializedProgramKerja = serializeBigInt(result)
 

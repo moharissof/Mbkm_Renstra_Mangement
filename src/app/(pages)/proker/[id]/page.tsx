@@ -26,7 +26,7 @@ import {
 import { ProgramKerjaDetails } from "../_component/Detail";
 import { PageLoader } from "@/components/ui/loader";
 import { DashboardLayout } from "@/components/dashboard/layout";
-
+type Params = Promise<{ id: string }>
 
 async function getProgramKerja(id: string) {
   try {
@@ -48,7 +48,7 @@ async function getProgramKerja(id: string) {
   }
 }
 
-type Params = Promise<{ id: string }>
+
 
 export default async function ProgramKerjaViewPage({
   params,

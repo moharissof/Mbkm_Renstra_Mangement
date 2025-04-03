@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import prisma, { serializeBigInt } from "@/lib/prisma"
 type Params = Promise<{ id: string }>;
+
 export async function GET(request: Request, { params }: { params: Params }) {
   try {
     const id = (await params).id

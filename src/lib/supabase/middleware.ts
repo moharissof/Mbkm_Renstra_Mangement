@@ -61,6 +61,7 @@ export const updateSession = async (request: NextRequest) => {
     if (session && ["/login", "/register"].includes(request.nextUrl.pathname)) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
+    
 
     // If there's a session, fetch user data
     if (session) {
@@ -77,12 +78,18 @@ export const updateSession = async (request: NextRequest) => {
         .single();
 
       if (userError) {
-        throw new Error(`Failed to fetch user data: ${userError.message}`);
+        if (isProtectedRoute) {
+          return NextResponse.redirect(new URL("/verify-admin", request.url));
+        }
       }
 
       if (!userData) {
-        throw new Error("User data not found");
+        if (request.nextUrl.pathname !== "/401") {
+          return NextResponse.redirect(new URL("/401", request.url));
+        }
       }
+
+      console.log("User data:", userData);
 
       // Check verification status
       if (!userData.isVerified) {

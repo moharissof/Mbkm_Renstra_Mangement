@@ -17,7 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { PointRenstra } from "@/types/renstra";
-import { PeriodeProker } from "@/types/proker";
+import { PeriodeRenstra } from "@/types/renstra";
 
 export default function CreateProgramKerjaPage() {
   const params = useParams();
@@ -30,7 +30,7 @@ export default function CreateProgramKerjaPage() {
 
   const [loading, setLoading] = useState(true);
   const [pointRenstra, setPointRenstra] = useState<PointRenstra | null>(null);
-  const [periode, setPeriode] = useState<PeriodeProker | null>(null);
+  const [periode, setPeriode] = useState<PeriodeRenstra | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,14 +45,12 @@ export default function CreateProgramKerjaPage() {
         // Fetch periode details
         if (periodeId) {
           const periodeResponse = await fetch(
-            `/api/periode-proker/${periodeId}`
+            `/api/periode/${periodeId}`
           );
           if (!periodeResponse.ok) throw new Error("Failed to fetch period");
           const periodeData = await periodeResponse.json();
           setPeriode(periodeData);
         }
-
-        
       } catch (err) {
         console.error("Error fetching data:", err);
         showError("Error", "Failed to fetch required data");
@@ -175,7 +173,7 @@ export default function CreateProgramKerjaPage() {
               </div>
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Periode</h3>
-                <p className="font-medium">{periode.tahun}</p>
+                <p className="font-medium">{periode.nama} - {periode.tahun_awal} sampai {periode.tahun_akhir} </p>
               </div>
             </div>
           </CardContent>
