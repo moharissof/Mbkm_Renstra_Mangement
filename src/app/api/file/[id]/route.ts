@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import prisma, {serializeBigInt} from "@/lib/prisma"
 import { deleteFile, updateFile } from "@/services/Drive"
+
 type Params = Promise<{ id: string }>;
 // GET /api/files/[id] - Get a specific file
 export async function GET(request: NextRequest, { params }: { params : Params }) {
