@@ -90,7 +90,6 @@ export const updateSession = async (request: NextRequest) => {
       }
 
       console.log("User data:", userData);
-
       // Check verification status
       if (!userData.isVerified) {
         // Allow access to verification page and static files

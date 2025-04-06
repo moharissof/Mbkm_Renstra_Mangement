@@ -35,7 +35,7 @@ const menuItems = [
     title: "Bidang",
     icon: SquareUser,
     href: "/dashboard/bidang",
-    roles: [Role.Admin], // Admin and management roles
+    roles: [Role.Admin], 
   },
   {
     title: "Periode Renstra",
@@ -90,6 +90,12 @@ const menuItems = [
     icon: Network,
     href: "/dashboard/jabatan",
     roles: [Role.Admin], // Only Admin can manage positions
+  },
+  {
+    title: "Struktural",
+    icon: Network,
+    href: "/dashboard/struktural",
+    roles: [Role.Kabag, Role.Waket_1, Role.Waket_2], // Only Admin can manage positions
   },
   {
     title: "Setting",

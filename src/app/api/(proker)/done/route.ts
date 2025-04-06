@@ -6,52 +6,56 @@ export async function GET(request: Request) {
   try {
     // Get URL and search params
     const { searchParams } = new URL(request.url)
- 
+    
     // Get query parameters
     const query = searchParams.get("query")?.toLowerCase() || ""
     const userId = searchParams.get("user_id")
+    const bidangId = searchParams.get("bidang_id")
+      ? BigInt(searchParams.get("bidang_id")!)
+      : undefined
     const status = searchParams.get("status")
     const page = Number.parseInt(searchParams.get("page") || "1")
     const limit = Number.parseInt(searchParams.get("limit") || "10")
     const skip = (page - 1) * limit
+    const completedOnly = searchParams.get("completed") === "true" // New parameter
 
-    // 1. Get current user's position
-    const currentUser = await prisma.users.findUnique({
-      where: { id: userId || '' },
-      select: { jabatan_id: true }
-    })
+    // 1. Get current user's bidang (either from parameter or user's position)
+    let targetBidangId = bidangId
 
-    if (!currentUser?.jabatan_id) {
+    if (!targetBidangId && userId) {
+      const userWithPosition = await prisma.users.findUnique({
+        where: { id: userId },
+        include: {
+          jabatan: {
+            select: {
+              bidang_id: true
+            }
+          }
+        }
+      })
+      targetBidangId = userWithPosition?.jabatan?.bidang_id
+    }
+
+    if (!targetBidangId) {
       return NextResponse.json(
-        { error: "User position not found" },
-        { status: 404 }
+        { error: "Bidang ID is required" },
+        { status: 400 }
       )
     }
 
-    // 2. Get all subordinate positions (recursive)
-    const getSubordinateIds = async (positionId: bigint): Promise<bigint[]> => {
-      const subordinates = await prisma.jabatan.findMany({
-        where: { parent_id: positionId },
-        select: { id: true }
-      })
+    // 2. Get all positions in the bidang
+    const positionsInBidang = await prisma.jabatan.findMany({
+      where: { bidang_id: targetBidangId },
+      select: { id: true }
+    })
 
-      let ids = subordinates.map((j: any) => j.id)
-      
-      for (const sub of subordinates) {
-        const childIds = await getSubordinateIds(sub.id)
-        ids = [...ids, ...childIds]
-      }
+    const positionIds = positionsInBidang.map((p: any) => p.id)
 
-      return ids
-    }
-
-    const subordinateIds = await getSubordinateIds(currentUser.jabatan_id)
-
-    // 3. Get users in subordinate positions
-    const subordinateUsers = await prisma.users.findMany({
+    // 3. Get all users in these positions
+    const usersInBidang = await prisma.users.findMany({
       where: {
         jabatan_id: {
-          in: subordinateIds
+          in: positionIds
         }
       },
       select: {
@@ -59,12 +63,20 @@ export async function GET(request: Request) {
       }
     })
 
-    const subordinateUserIds = subordinateUsers.map((u: any) => u.id)
+    const userIdsInBidang = usersInBidang.map((u: any) => u.id)
 
     // 4. Build filter conditions
     const where: any = {
       user_id: {
-        in: subordinateUserIds
+        in: userIdsInBidang
+      }
+    }
+
+    // Tambahkan filter progress 100% dan status belum Done jika completedOnly true
+    if (completedOnly) {
+      where.progress = 100
+      where.NOT = {
+        status: 'Done'
       }
     }
 
@@ -74,6 +86,7 @@ export async function GET(request: Request) {
         { deskripsi: { contains: query, mode: "insensitive" } },
       ]
     }
+
     if (status) {
       where.status = status
     }
@@ -115,6 +128,19 @@ export async function GET(request: Request) {
             },
           },
         },
+        // Tambahkan include reports untuk melihat laporan terakhir
+        laporan: {
+          orderBy: {
+            created_at: 'desc'
+          },
+          take: 1,
+          select: {
+            id: true,
+            realisasi: true,
+            created_at: true,
+            laporan: true
+          }
+        }
       },
     })
 
@@ -125,14 +151,21 @@ export async function GET(request: Request) {
       page,
       limit,
       totalPages: Math.ceil(total / limit),
-      subordinateCount: subordinateUserIds.length
+      bidangId: targetBidangId,
+      userCount: userIdsInBidang.length,
+      positionCount: positionIds.length,
+      filters: {
+        completedOnly,
+        query,
+        status
+      }
     })
-
+    console.log("Serialized Data:", serializedData)
     return NextResponse.json(serializedData)
   } catch (error) {
-    console.error("Error fetching subordinate programs:", error)
+    console.error("Error fetching programs by bidang:", error)
     return NextResponse.json(
-      { error: "Failed to fetch subordinate programs" },
+      { error: "Failed to fetch programs by bidang" },
       { status: 500 }
     )
   }

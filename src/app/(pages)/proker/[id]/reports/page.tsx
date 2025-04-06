@@ -7,7 +7,7 @@ import ReportFormSkeleton from "../../_component/reports/ReportSkeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { FileText, BarChart, ChevronLeft } from "lucide-react"
+import { FileText, BarChart, ChevronLeft, CheckCircle } from "lucide-react"
 import ReportForm from "../../_component/reports/ReportForm"
 import ProgressChart from "../../_component/reports/Progress"
 import { User } from "@/types/user"
@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button"
 import Link from 'next/link';
+import { Badge } from "@/components/ui/badge"
 
 async function getProgramKerja(id: string) {
   try {
@@ -132,11 +133,13 @@ function ProgramReportsContent({ id }: { id: string }) {
   const isInProgress = programKerja.status === "On_Progress"
   const isAssigned = programKerja.user_id === user.id
   const isSupervisor = ["Kabag", "Waket_1", "Waket_2", "Ketua"].includes(user.jabatan?.role || "")
+  const isCompleted = programKerja.progress === 100
+  const isDone = programKerja.status === "Done"
 
   return (
     <DashboardLayout>
       <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between">
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
@@ -170,7 +173,7 @@ function ProgramReportsContent({ id }: { id: string }) {
               <span>Kembali</span>
             </Button>
           </Link>
-      </div>
+        </div>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Laporan Program</h1>
           <p className="text-muted-foreground">Lihat dan kelola laporan untuk {programKerja.nama}</p>
@@ -190,14 +193,33 @@ function ProgramReportsContent({ id }: { id: string }) {
               </TabsList>
 
               <TabsContent value="reports" className="space-y-4 pt-4">
-                {isInProgress && isAssigned && (
+                {isDone ? (
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-6 flex items-start gap-3">
+                    <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-blue-800 font-medium">
+                        Program ini telah selesai dan diverifikasi 
+                      </p>
+                    </div>
+                  </div>
+                ) : isInProgress && isAssigned && !isCompleted ? (
                   <Suspense fallback={<ReportFormSkeleton />}>
                     <div className="mb-6">
-                      <ReportForm programId={id} userId={user.id} />
+                      <ReportForm 
+                        programId={id} 
+                        userId={user.id} 
+                        initialProgress={programKerja.progress || 0} 
+                      />
                     </div>
                     <Separator className="my-6" />
                   </Suspense>
-                )}
+                ) : isCompleted && isAssigned ? (
+                  <div className="p-4 bg-green-50 border border-green-200 rounded-lg mb-6">
+                    <p className="text-green-800">
+                      Program ini telah mencapai 100% progres. Tunggu verifikasi dari atasan.
+                    </p>
+                  </div>
+                ) : null}
 
                 <Suspense fallback={<ReportsFeedSkeleton />}>
                   <ReportsFeed programId={id} userId={user.id} isSupervisor={isSupervisor} />
@@ -226,7 +248,15 @@ function ProgramReportsContent({ id }: { id: string }) {
 
                 <div>
                   <h3 className="font-medium text-sm text-muted-foreground">Status</h3>
-                  <p>{programKerja.status}</p>
+                  <div className="flex items-center gap-2">
+                    <p>{programKerja.status}</p>
+                    {isDone && (
+                      <Badge variant="outline" className="border-blue-200 text-blue-700">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Selesai
+                      </Badge>
+                    )}
+                  </div>
                 </div>
 
                 <div>
@@ -247,6 +277,7 @@ function ProgramReportsContent({ id }: { id: string }) {
                   <h3 className="font-medium text-sm text-muted-foreground">Progres</h3>
                   <p>{programKerja.progress || 0}%</p>
                 </div>
+
               </CardContent>
             </Card>
 

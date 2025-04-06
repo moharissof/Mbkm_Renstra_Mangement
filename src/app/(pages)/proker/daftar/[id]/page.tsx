@@ -4,8 +4,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { format } from "date-fns";
-import { Clock, Calendar, LockIcon, Filter, Eye } from "lucide-react";
+import { Clock, Calendar, Filter, Eye, Search } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -16,7 +17,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { StartProgramDialog } from "../_component/UnlockModal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardLayout } from "@/components/dashboard/layout";
 import {
@@ -26,15 +26,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 export default function ApprovedProgramsPage() {
+  const params = useParams();
   const { toast } = useToast();
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
   const [programs, setPrograms] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [startDialogOpen, setStartDialogOpen] = useState(false);
-  const [selectedProgram, setSelectedProgram] = useState<any>(null);
+  const [filteredPrograms, setFilteredPrograms] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true); 
+  const userId = params.id as string;
+  const [searchTerm, setSearchTerm] = useState("");
+
   const [periods, setPeriods] = useState<any[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<string>("Disetujui");
   const [selectedPeriod, setSelectedPeriod] = useState<string>("");
@@ -47,35 +50,16 @@ export default function ApprovedProgramsPage() {
   ];
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await fetch("/api/auth/user", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const { user: userData } = await response.json();
-        setUser(userData);
-      } catch (error) {
-        console.error("Gagal mengambil data user:", error);
-      }
-    };
-
-    fetchUser();
-  }, []);
-
-  useEffect(() => {
     const fetchPeriods = async () => {
       try {
         const response = await fetch("/api/periode-proker");
         if (!response.ok) throw new Error("Gagal mengambil periode");
         const data = await response.json();
-        // Ensure we always have an array
+        console.log("Fetched periods:", data);
         setPeriods(Array.isArray(data) ? data : data.periodeProker || []);
       } catch (error) {
         console.error("Error fetching periods:", error);
-        setPeriods([]); // Set empty array on error
+        setPeriods([]);
       }
     };
 
@@ -84,11 +68,11 @@ export default function ApprovedProgramsPage() {
 
   useEffect(() => {
     const fetchPrograms = async () => {
-      if (!user?.id) return;
+      if (!userId) return;
 
       setLoading(true);
       try {
-        let url = `/api/proker?user_id=${user.id}&status=${selectedStatus}`;
+        let url = `/api/proker?user_id=${userId}&status=${selectedStatus}`;
 
         if (selectedPeriod && selectedPeriod !== "all") {
           url += `&periode_proker_id=${selectedPeriod}`;
@@ -99,6 +83,7 @@ export default function ApprovedProgramsPage() {
 
         const data = await response.json();
         setPrograms(data.programKerja || []);
+        setFilteredPrograms(data.programKerja || []);
       } catch (error) {
         console.error("Gagal mengambil program kerja:", error);
         toast({
@@ -112,22 +97,19 @@ export default function ApprovedProgramsPage() {
     };
 
     fetchPrograms();
-  }, [user, selectedStatus, selectedPeriod]);
+  }, [selectedStatus, selectedPeriod]);
 
-  const handleStartProgram = (program: any) => {
-    setSelectedProgram(program);
-    setStartDialogOpen(true);
-  };
-
-  const handleProgramStarted = (updatedProgram: any) => {
-    setPrograms(programs.filter((p) => p.id !== updatedProgram.id));
-    toast({
-      title: "Program Dimulai",
-      description: "Program berhasil dimulai",
-      variant: "success",
-    });
-    router.push(`/program-kerja/${updatedProgram.id}`);
-  };
+  // Add search filter effect
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredPrograms(programs);
+    } else {
+      const filtered = programs.filter(program =>
+        program.nama.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredPrograms(filtered);
+    }
+  }, [searchTerm, programs]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -177,6 +159,7 @@ export default function ApprovedProgramsPage() {
       </DashboardLayout>
     );
   }
+
   return (
     <DashboardLayout>
       <div className="space-y-6 p-6">
@@ -222,11 +205,22 @@ export default function ApprovedProgramsPage() {
                 ))}
             </SelectContent>
           </Select>
+
+          {/* Search Input */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Cari berdasarkan nama program..."
+              className="pl-8"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
 
-        {programs.length > 0 ? (
+        {filteredPrograms.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {programs.map((program) => {
+            {filteredPrograms.map((program) => {
               const startDate = new Date(program.waktu_mulai);
               const endDate = new Date(program.waktu_selesai);
               const daysLeft = Math.ceil(
@@ -248,7 +242,6 @@ export default function ApprovedProgramsPage() {
                         backgroundPosition: "center",
                       }}
                     >
-                      {/* Add a dark overlay to ensure text readability */}
                       <div className="absolute inset-0 bg-black/50"></div>
                       <div className="absolute top-4 right-4">
                         {getStatusBadge(program.status)}
@@ -352,15 +345,6 @@ export default function ApprovedProgramsPage() {
                         <Eye className="mr-2 h-4 w-4" />
                         Detail Program
                       </Button>
-                      {program.status === "Disetujui" && (
-                        <Button
-                          className="w-full"
-                          onClick={() => handleStartProgram(program)}
-                        >
-                          <LockIcon className="mr-2 h-4 w-4" />
-                          Mulai Program
-                        </Button>
-                      )}
 
                       {program.status === "On_Progress" && (
                         <div className="flex flex-col gap-2">
@@ -370,7 +354,7 @@ export default function ApprovedProgramsPage() {
                               router.push(`/proker/${program.id}/reports`)
                             }
                           >
-                            Liat Laporan
+                            Lihat Laporan
                           </Button>
                           <Button
                             className="w-full"
@@ -378,7 +362,7 @@ export default function ApprovedProgramsPage() {
                               router.push(`/proker/${program.id}/file`)
                             }
                           >
-                            Liat File
+                            Lihat File
                           </Button>
                         </div>
                       )}
@@ -391,7 +375,7 @@ export default function ApprovedProgramsPage() {
                               router.push(`/proker/${program.id}/reports`)
                             }
                           >
-                            Liat Laporan
+                            Lihat Laporan
                           </Button>
                           <Button
                             className="w-full"
@@ -399,7 +383,7 @@ export default function ApprovedProgramsPage() {
                               router.push(`/proker/${program.id}/file`)
                             }
                           >
-                            Liat File
+                            Lihat File
                           </Button>
                         </div>
                       )}
@@ -412,25 +396,25 @@ export default function ApprovedProgramsPage() {
         ) : (
           <div className="flex flex-col items-center justify-center p-8 border border-dashed rounded-lg">
             <div className="text-center">
-              <h3 className="text-lg font-medium mb-2">Tidak ada data</h3>
+              <h3 className="text-lg font-medium mb-2">
+                {searchTerm ? "Tidak ditemukan program" : "Tidak ada data"}
+              </h3>
               <p className="text-muted-foreground">
-                Tidak ada program kerja yang ditemukan dengan filter yang
-                dipilih.
+                {searchTerm
+                  ? `Tidak ada program kerja dengan nama "${searchTerm}"`
+                  : "Tidak ada program kerja yang ditemukan dengan filter yang dipilih."}
               </p>
+              {searchTerm && (
+                <Button
+                  variant="ghost"
+                  className="mt-4"
+                  onClick={() => setSearchTerm("")}
+                >
+                  Reset Pencarian
+                </Button>
+              )}
             </div>
           </div>
-        )}
-
-        {selectedProgram && (
-          <StartProgramDialog
-            program={selectedProgram}
-            isOpen={startDialogOpen}
-            onClose={() => {
-              setStartDialogOpen(false);
-              setSelectedProgram(null);
-            }}
-            onProgramStarted={handleProgramStarted}
-          />
         )}
       </div>
     </DashboardLayout>

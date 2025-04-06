@@ -269,13 +269,10 @@ export default function ProgramKerjaPage() {
                       <SelectTrigger className="w-full sm:w-[180px] bg-white border-gray-200">
                         <SelectValue placeholder="Pilih status" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Semua Status</SelectItem>
+                      <SelectContent> 
                         <SelectItem value="Draft">Draft</SelectItem>
                         <SelectItem value="Planning">Planning</SelectItem>
-                        <SelectItem value="Disetujui">Disetujui</SelectItem>
                         <SelectItem value="Ditolak">Ditolak</SelectItem>
-                        <SelectItem value="Done">Selesai</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

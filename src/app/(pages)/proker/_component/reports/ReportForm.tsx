@@ -15,6 +15,8 @@ import { Paperclip, Send } from "lucide-react"
 interface ReportFormProps {
   programId: string
   userId: string
+  initialProgress?: number; // Add initialProgress as an optional property
+
 }
 
 export default function ReportForm({ programId, userId }: ReportFormProps) {
