@@ -43,6 +43,8 @@ model users {
   komentar   komentar[]
   activity_log activity_log[]
   file        file[]
+  sender     Notification[] @relation("SentNotifications")
+  recipient  Notification[] @relation("ReceivedNotifications")
   @@schema("public")
 }
 
@@ -278,5 +280,36 @@ model activity_log {
   @@index([createdAt])
 }
 
+enum NotificationType {
+  System
+  Announcement
+  Approval
+  Rejection
+  ProgressUpdate
+  Comment
+  @@schema("public")
+}
 
+model Notification {
+  id              BigInt           @id @default(autoincrement())
+  title           String
+  message         String
+  type            NotificationType @default(System)
+  is_read         Boolean          @default(false)
+  is_broadcast    Boolean          @default(false) // If true, sent to all users
+  sender_id       String
+  recipient_id    String?          // Null if broadcast
+  related_entity  String?          // e.g., "ProgramKerja", "Laporan"
+  related_entity_id BigInt?        // ID of related entity
+  created_at      DateTime         @default(now())
+  read_at        DateTime?
+  
+  sender          users            @relation("SentNotifications", fields: [sender_id], references: [id])
+  recipient       users?           @relation("ReceivedNotifications", fields: [recipient_id], references: [id])
+  
+  @@schema("public")
+  @@index([recipient_id, is_read])
+  @@index([created_at])
+  @@index([is_broadcast])
+}
 

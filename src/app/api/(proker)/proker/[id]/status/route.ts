@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import prisma, { serializeBigInt } from "@/lib/prisma"
+import { createNotification } from "@/services/Notification";
 type Params = Promise<{ id: string }>;
 
 export async function PUT(request: Request, { params }: { params: Params }) {
@@ -35,10 +36,19 @@ export async function PUT(request: Request, { params }: { params: Params }) {
         updated_at: new Date(),
       },
     })
-
+    const relatedEntityId = Number(updatedProgramKerja.id)
+    await createNotification({
+      title: updatedProgramKerja.nama,
+      message: "Program kerja Anda telah disetujui",
+      type: "Approval",
+      senderId: updatedProgramKerja.user_id,
+      // senderId: approverId,
+      recipientId: updatedProgramKerja.user_id,
+      relatedEntity: "ProgramKerja",
+      relatedEntityId: relatedEntityId,
+    })
     // Serialize BigInt values before sending the response
     const serializedProgramKerja = serializeBigInt(updatedProgramKerja)
-
     return NextResponse.json(serializedProgramKerja)
   } catch (error) {
     console.error("Error updating program kerja status:", error)

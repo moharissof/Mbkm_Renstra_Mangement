@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { NextResponse } from "next/server"
-import prisma, { serializeBigInt } from "@/lib/prisma"
-
+import { NextResponse } from "next/server";
+import prisma, { serializeBigInt } from "@/lib/prisma";
+import { logAction } from "@/lib/logger";
+import { createNotification } from "@/services/Notification";
 type Params = Promise<{ id: string }>;
 
 export async function GET(request: Request, { params }: { params: Params }) {
   try {
-    const id = (await params).id
+    const id = (await params).id;
 
     // Find program_kerja by ID with related data
     const programKerja = await prisma.program_kerja.findUnique({
@@ -34,26 +35,32 @@ export async function GET(request: Request, { params }: { params: Params }) {
           },
         },
       },
-    })
+    });
 
     if (!programKerja) {
-      return NextResponse.json({ error: "Program kerja not found" }, { status: 404 })
+      return NextResponse.json(
+        { error: "Program kerja not found" },
+        { status: 404 }
+      );
     }
 
     // Serialize BigInt values before sending the response
-    const serializedProgramKerja = serializeBigInt(programKerja)
+    const serializedProgramKerja = serializeBigInt(programKerja);
 
-    return NextResponse.json(serializedProgramKerja)
+    return NextResponse.json(serializedProgramKerja);
   } catch (error) {
-    console.error("Error fetching program kerja:", error)
-    return NextResponse.json({ error: "Failed to fetch program kerja" }, { status: 500 })
+    console.error("Error fetching program kerja:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch program kerja" },
+      { status: 500 }
+    );
   }
 }
 
 export async function PUT(request: Request, { params }: { params: Params }) {
   try {
-    const id = (await params).id
-    const body = await request.json()
+    const id = (await params).id;
+    const body = await request.json();
 
     // Check if program_kerja exists
     const existingProgramKerja = await prisma.program_kerja.findUnique({
@@ -62,14 +69,17 @@ export async function PUT(request: Request, { params }: { params: Params }) {
         indikator_proker: true,
         point_standar: true,
       },
-    })
+    });
 
     if (!existingProgramKerja) {
-      return NextResponse.json({ error: "Program kerja not found" }, { status: 404 })
+      return NextResponse.json(
+        { error: "Program kerja not found" },
+        { status: 404 }
+      );
     }
 
     // Start a transaction
-    const result = await prisma.$transaction(async (tx : any) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       // Update program_kerja
       const updatedProgramKerja = await tx.program_kerja.update({
         where: { id: BigInt(id) },
@@ -82,7 +92,10 @@ export async function PUT(request: Request, { params }: { params: Params }) {
           waktu_selesai: new Date(body.waktu_selesai),
           anggaran: body.anggaran ? BigInt(body.anggaran) : null,
           volume: body.volume,
-          progress: body.progress !== undefined ? body.progress : existingProgramKerja.progress,
+          progress:
+            body.progress !== undefined
+              ? body.progress
+              : existingProgramKerja.progress,
           status: body.status || existingProgramKerja.status,
           first_approval_status: body.first_approval_status,
           status_periode_first: body.status_periode_first,
@@ -91,14 +104,14 @@ export async function PUT(request: Request, { params }: { params: Params }) {
           alasan_penolakan: body.alasan_penolakan,
           updated_at: new Date(),
         },
-      })
+      });
 
       // Handle indikator_proker updates
       if (body.indikator_proker) {
         // Delete existing indicators
         await tx.indikator_proker.deleteMany({
           where: { proker_id: BigInt(id) },
-        })
+        });
 
         // Create new indicators
         const indikatorPromises = body.indikator_proker.map((indikator: any) =>
@@ -111,10 +124,10 @@ export async function PUT(request: Request, { params }: { params: Params }) {
               created_at: new Date(),
               updated_at: new Date(),
             },
-          }),
-        )
+          })
+        );
 
-        await Promise.all(indikatorPromises)
+        await Promise.all(indikatorPromises);
       }
 
       // Handle point_standar updates
@@ -128,25 +141,26 @@ export async function PUT(request: Request, { params }: { params: Params }) {
               },
             },
           },
-        })
+        });
 
         // Create new point_standar records
         if (body.point_standar.length > 0) {
-          const pointStandarPromises = body.point_standar.map((pointStandar: any) =>
-            tx.point_standar.create({
-              data: {
-                nama: pointStandar.nama,
-                point: pointStandar.point,
-                created_at: new Date(),
-                updated_at: new Date(),
-                program_kerja: {
-                  connect: { id: BigInt(id) },
+          const pointStandarPromises = body.point_standar.map(
+            (pointStandar: any) =>
+              tx.point_standar.create({
+                data: {
+                  nama: pointStandar.nama,
+                  point: pointStandar.point,
+                  created_at: new Date(),
+                  updated_at: new Date(),
+                  program_kerja: {
+                    connect: { id: BigInt(id) },
+                  },
                 },
-              },
-            }),
-          )
+              })
+          );
 
-          await Promise.all(pointStandarPromises)
+          await Promise.all(pointStandarPromises);
         }
       }
 
@@ -166,30 +180,56 @@ export async function PUT(request: Request, { params }: { params: Params }) {
             },
           },
         },
-      })
-    })
+      });
+    });
 
     // Serialize BigInt values before sending the response
-    const serializedProgramKerja = serializeBigInt(result)
+    const serializedProgramKerja = serializeBigInt(result);
+    // Log activity
+    await logAction({
+      action: "UPDATE",
+      description: "Program kerja diupdate",
+      entityType: "ProgramKerja",
+      entityId: result.id,
+      userId: result.user_id,
+      newData: result,
+      request,
+    });
 
-    return NextResponse.json(serializedProgramKerja)
+    // Create notification
+    await createNotification({
+      title: serializedProgramKerja.nama,
+      message: "Program Anda Telah Diupdate",
+      type: "System",
+      senderId: serializedProgramKerja.user_id,
+      recipientId: serializedProgramKerja.user_id,
+      relatedEntity: "ProgramKerja",
+      relatedEntityId: serializedProgramKerja.id,
+    });
+    return NextResponse.json(serializedProgramKerja);
   } catch (error) {
-    console.error("Error updating program kerja:", error)
-    return NextResponse.json({ error: "Failed to update program kerja" }, { status: 500 })
+    console.error("Error updating program kerja:", error);
+    return NextResponse.json(
+      { error: "Failed to update program kerja" },
+      { status: 500 }
+    );
   }
 }
 
 export async function DELETE(request: Request, { params }: { params: Params }) {
   try {
-    const id = (await params).id
+    const id = (await params).id;
 
     // Check if program_kerja exists
     const existingProgramKerja = await prisma.program_kerja.findUnique({
       where: { id: BigInt(id) },
-    })
+    });
 
     if (!existingProgramKerja) {
-      return NextResponse.json({ error: "Program kerja not found" }, { status: 404 })
+      return NextResponse.json(
+        { error: "Program kerja not found" },
+        { status: 404 }
+      );
     }
 
     // Start a transaction
@@ -197,7 +237,7 @@ export async function DELETE(request: Request, { params }: { params: Params }) {
       // Delete related indikator_proker
       await tx.indikator_proker.deleteMany({
         where: { proker_id: BigInt(id) },
-      })
+      });
 
       // Delete related point_standar
       await tx.point_standar.deleteMany({
@@ -208,21 +248,34 @@ export async function DELETE(request: Request, { params }: { params: Params }) {
             },
           },
         },
-      })
+      });
 
       // Delete program_kerja
       await tx.program_kerja.delete({
         where: { id: BigInt(id) },
-      })
-    })
+      });
+    });
 
-    return NextResponse.json({ success: true, message: "Program kerja deleted successfully" })
+    // Log activity
+    await logAction({
+      action: "DELETE",
+      entityType: "ProgramKerja",
+      description: "Program kerja dihapus",
+      entityId: BigInt(id),
+      userId: existingProgramKerja.user_id,
+    });
+    return NextResponse.json({
+      success: true,
+      message: "Program kerja deleted successfully",
+    });
   } catch (error) {
-    console.error("Error deleting program kerja:", error)
+    console.error("Error deleting program kerja:", error);
     return NextResponse.json(
-      { error: "Failed to delete program kerja", details: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 },
-    )
+      {
+        error: "Failed to delete program kerja",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 }
+    );
   }
 }
-

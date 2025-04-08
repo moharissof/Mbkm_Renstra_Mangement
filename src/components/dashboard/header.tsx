@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
+import { NotificationDropdown } from "@/components/notification/DropDown";
 
 interface DashboardHeaderProps {
   onMenuToggle: () => void;
@@ -15,7 +16,7 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ onMenuToggle }: DashboardHeaderProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [userData, setUserData] = useState<{ name: string; email: string; photo: string } | null>(null);
+  const [userData, setUserData] = useState<{ id: string; name: string; email: string; photo: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -108,24 +109,7 @@ export function DashboardHeader({ onMenuToggle }: DashboardHeaderProps) {
       </div>
 
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="rounded-full relative">
-          <div className="absolute top-1 right-1 h-2 w-2 rounded-full bg-orange-500"></div>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-            />
-          </svg>
-        </Button>
-
+        <NotificationDropdown userId={userData?.id || ""} />
         <div className="relative" ref={userMenuRef}>
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => setUserMenuOpen(!userMenuOpen)}>
             <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center overflow-hidden">

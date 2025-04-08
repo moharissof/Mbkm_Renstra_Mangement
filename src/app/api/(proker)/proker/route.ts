@@ -1,53 +1,56 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { NextResponse } from "next/server"
-import prisma, { serializeBigInt } from "@/lib/prisma"
-import { logAction } from '@/lib/logger'
+import { NextResponse } from "next/server";
+import prisma, { serializeBigInt } from "@/lib/prisma";
+import { logAction } from "@/lib/logger";
+import { createNotification } from "@/services/Notification";
 
 export async function GET(request: Request) {
   try {
     // Get URL and search params
-    const { searchParams } = new URL(request.url)
+    const { searchParams } = new URL(request.url);
 
     // Get query parameters
-    const query = searchParams.get("query")?.toLowerCase() || ""
-    const userId = searchParams.get("user_id")
+    const query = searchParams.get("query")?.toLowerCase() || "";
+    const userId = searchParams.get("user_id");
     const pointRenstraId = searchParams.get("point_renstra_id")
       ? BigInt(searchParams.get("point_renstra_id")!)
-      : undefined
-    const periodeId = searchParams.get("periode_proker_id") ? BigInt(searchParams.get("periode_proker_id")!) : undefined
-    const status = searchParams.get("status")
-    const page = Number.parseInt(searchParams.get("page") || "1")
-    const limit = Number.parseInt(searchParams.get("limit") || "10")
-    const skip = (page - 1) * limit
+      : undefined;
+    const periodeId = searchParams.get("periode_proker_id")
+      ? BigInt(searchParams.get("periode_proker_id")!)
+      : undefined;
+    const status = searchParams.get("status");
+    const page = Number.parseInt(searchParams.get("page") || "1");
+    const limit = Number.parseInt(searchParams.get("limit") || "10");
+    const skip = (page - 1) * limit;
 
     // Build filter conditions
-    const where: any = {}
+    const where: any = {};
 
     if (query) {
       where.OR = [
         { nama: { contains: query, mode: "insensitive" } },
         { deskripsi: { contains: query, mode: "insensitive" } },
-      ]
+      ];
     }
 
     if (userId) {
-      where.user_id = userId
+      where.user_id = userId;
     }
 
     if (pointRenstraId) {
-      where.point_renstra_id = pointRenstraId
+      where.point_renstra_id = pointRenstraId;
     }
 
     if (periodeId) {
-      where.periode_proker_id = periodeId
+      where.periode_proker_id = periodeId;
     }
 
     if (status) {
-      where.status = status
+      where.status = status;
     }
 
     // Get total count for pagination
-    const total = await prisma.program_kerja.count({ where })
+    const total = await prisma.program_kerja.count({ where });
 
     // Fetch program_kerja items
     const programKerja = await prisma.program_kerja.findMany({
@@ -80,7 +83,7 @@ export async function GET(request: Request) {
           },
         },
       },
-    })
+    });
 
     // Serialize BigInt values before sending the response
     const serializedData = serializeBigInt({
@@ -89,19 +92,22 @@ export async function GET(request: Request) {
       page,
       limit,
       totalPages: Math.ceil(total / limit),
-    })
+    });
 
     // Return response
-    return NextResponse.json(serializedData)
+    return NextResponse.json(serializedData);
   } catch (error) {
-    console.error("Error fetching program kerja:", error)
-    return NextResponse.json({ error: "Failed to fetch program kerja" }, { status: 500 })
+    console.error("Error fetching program kerja:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch program kerja" },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
+    const body = await request.json();
 
     // Validate required fields
     if (
@@ -112,14 +118,16 @@ export async function POST(request: Request) {
       !body.waktu_mulai ||
       !body.waktu_selesai ||
       !body.volume ||
-      !body.indikator_proker 
+      !body.indikator_proker
     ) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
     }
-    
-    // Start a transaction
-    const result = await prisma.$transaction(async (tx : any) => {
 
+    // Start a transaction
+    const result = await prisma.$transaction(async (tx: any) => {
       // Check role and user_id
       // Create program_kerja
       const newProgramKerja = await tx.program_kerja.create({
@@ -140,7 +148,7 @@ export async function POST(request: Request) {
           created_at: new Date(),
           updated_at: new Date(),
         },
-      })
+      });
 
       // Create indikator_proker entries
       const indikatorPromises = body.indikator_proker.map((indikator: any) =>
@@ -153,28 +161,29 @@ export async function POST(request: Request) {
             created_at: new Date(),
             updated_at: new Date(),
           },
-        }),
-      )
+        })
+      );
 
-      await Promise.all(indikatorPromises)
+      await Promise.all(indikatorPromises);
 
       // Create point_standar records if provided
       if (body.point_standar && body.point_standar.length > 0) {
-        const pointStandarPromises = body.point_standar.map((pointStandar: any) =>
-          tx.point_standar.create({
-            data: {
-              nama: pointStandar.nama,
-              point: pointStandar.point,
-              created_at: new Date(),
-              updated_at: new Date(),
-              program_kerja: {
-                connect: { id: newProgramKerja.id },
+        const pointStandarPromises = body.point_standar.map(
+          (pointStandar: any) =>
+            tx.point_standar.create({
+              data: {
+                nama: pointStandar.nama,
+                point: pointStandar.point,
+                created_at: new Date(),
+                updated_at: new Date(),
+                program_kerja: {
+                  connect: { id: newProgramKerja.id },
+                },
               },
-            },
-          }),
-        )
+            })
+        );
 
-        await Promise.all(pointStandarPromises)
+        await Promise.all(pointStandarPromises);
       }
 
       // Return the created program with its relations
@@ -193,24 +202,36 @@ export async function POST(request: Request) {
             },
           },
         },
-      })
-    })
+      });
+    });
     // Log activity
     await logAction({
-      action: 'CREATE',
-      entityType: 'ProgramKerja',
+      action: "CREATE",
+      entityType: "ProgramKerja",
       entityId: result.id,
       userId: result.user_id,
       newData: result,
-      request
-    })
-    // Serialize BigInt values before sending the response
-    const serializedProgramKerja = serializeBigInt(result)
+      request,
+    });
 
-    return NextResponse.json(serializedProgramKerja, { status: 201 })
+    // Serialize BigInt values before sending the response
+    const serializedProgramKerja = serializeBigInt(result);
+    // Create notification
+    await createNotification({
+      title: serializedProgramKerja.nama,
+      message: "Program kerja Anda telah dibuat",
+      type: "System",
+      senderId: serializedProgramKerja.user_id,
+      // recipientId: creatorId,
+      relatedEntity: "ProgramKerja",
+      relatedEntityId: serializedProgramKerja.id,
+    });
+    return NextResponse.json(serializedProgramKerja, { status: 201 });
   } catch (error) {
-    console.error("Error creating program kerja:", error)
-    return NextResponse.json({ error: "Failed to create program kerja" }, { status: 500 })
+    console.error("Error creating program kerja:", error);
+    return NextResponse.json(
+      { error: "Failed to create program kerja" },
+      { status: 500 }
+    );
   }
 }
-
