@@ -17,12 +17,9 @@ async function main() {
       create: data,
     });
   }
-
-  // Update data untuk Jabatan
+  
   const jabatanData = [
-    // Admin (Tidak memiliki atasan dan tidak berada di bawah siapa-siapa)
     { id: 1, nama: 'ADMIN', role: 'Admin', bidang_id: 1, parent_id: null },
-
     // Ketua (Pimpinan Tertinggi)
     { id: 2, nama: 'KETUA', role: 'Ketua', bidang_id: 1, parent_id: null },
 

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
-import { NotificationDropdown } from "@/components/notification/DropDown";
+import { NotificationDropdown } from "@/components/Notification/DropDown";
 
 interface DashboardHeaderProps {
   onMenuToggle: () => void;

@@ -24,7 +24,7 @@ import { FileEditDialog } from "../../_component/files/EditModal";
 import { FileList } from "../../_component/files/FileList";
 import { FileGrid } from "../../_component/files/FileGrid";
 import { useToast } from "@/hooks/use-toast";
-import { DashboardLayout } from "@/components/dashboard/layout";
+import { DashboardLayout } from "@/components/Dashboard/layout";
 import {
   Breadcrumb,
   BreadcrumbItem,

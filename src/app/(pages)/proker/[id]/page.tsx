@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { ProgramKerjaDetails } from "../_component/Detail";
 import { PageLoader } from "@/components/ui/loader";
-import { DashboardLayout } from "@/components/dashboard/layout";
+import { DashboardLayout } from "@/components/Dashboard/layout";
 type Params = Promise<{ id: string }>
 
 async function getProgramKerja(id: string) {

@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     // Log data for debugging
     console.log("userData", userData?.jabatan?.bidang_id);
     console.log("session.user.id", session.user.id);
-
+    console.log("user data lengkap", userData);
     // Return the user's data
     return NextResponse.json(
       { user: userData },
