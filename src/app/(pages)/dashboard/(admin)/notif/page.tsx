@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from 'lucide-react'
-import { DashboardLayout } from '@/components/Dashboard/layout'
+import { DashboardLayout } from '@/components/dashboard/layout'
 
 export default function BroadcastForm() {
   const [title, setTitle] = useState('')

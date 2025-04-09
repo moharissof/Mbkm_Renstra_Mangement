@@ -18,7 +18,7 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { StartProgramDialog } from "../_component/UnlockModal";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DashboardLayout } from "@/components/Dashboard/layout";
+import { DashboardLayout } from "@/components/dashboard/layout";
 import {
   Select,
   SelectContent,

@@ -13,7 +13,7 @@ import ProgressChart from "../../_component/reports/Progress"
 import { User } from "@/types/user"
 import { ProgramKerja } from "@/types/proker"
 import { PageLoader } from "@/components/ui/loader"
-import { DashboardLayout } from "@/components/Dashboard/layout"
+import { DashboardLayout } from "@/components/dashboard/layout"
 import {
   Breadcrumb,
   BreadcrumbItem,

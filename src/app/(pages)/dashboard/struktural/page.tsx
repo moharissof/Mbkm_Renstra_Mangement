@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast"
 import { Role } from "@/types/user"
 import { Loader2 } from "lucide-react"
-import { DashboardLayout } from "@/components/Dashboard/layout"
+import { DashboardLayout } from "@/components/dashboard/layout"
 
 export default function StaffPerformancePage() {
   const [staffData, setStaffData] = useState<StaffPerformance[]>([])
