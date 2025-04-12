@@ -135,13 +135,9 @@ export function DashboardHeader({ onMenuToggle }: DashboardHeaderProps) {
                 <p className="text-sm font-medium text-gray-900">{userData?.name || "User"}</p>
                 <p className="text-xs text-gray-500 truncate">{userData?.email || "No email"}</p>
               </div>
-              <a href="#" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              <a href="/profile" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 <User className="h-4 w-4 mr-2" />
                 My Profile
-              </a>
-              <a href="#" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                <Settings className="h-4 w-4 mr-2" />
-                Account Settings
               </a>
               <div className="border-t my-1"></div>
               <button

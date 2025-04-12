@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { ChevronRight, Check, X, Star, Download, ArrowRight } from "lucide-react"
 import { motion } from "framer-motion"
-
+ 
 // Animasi variants
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -144,7 +144,7 @@ export default function Home() {
               variants={fadeIn}
               className="lg:w-1/2 text-center lg:text-left"
             >
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">
+              <h1 className="text-white-4xl md:text-5xl font-bold mb-6">
                 Buat Keputusan
                 <br />
                 Perencanaan Strategis Terbaik
@@ -819,159 +819,6 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
-
-      {/* Pricing Section */}
-      <section className="py-20 bg-gradient-to-br from-primary to-blue-50">
-        <div className="container mx-auto px-6 md:px-12 lg:px-16">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-3xl font-bold text-center mb-16"
-          >
-            Pilih Paket yang Sesuai Untuk Anda!
-          </motion.h2>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="flex justify-center mb-8"
-          >
-            <div className="bg-white rounded-full p-1 flex items-center shadow-sm">
-              <button className="px-6 py-2 rounded-full bg-primary text-white">Bulanan</button>
-              <button className="px-6 py-2 rounded-full text-gray-700">Tahunan</button>
-            </div>
-          </motion.div>
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={staggerContainer}
-            className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto"
-          >
-            <motion.div
-              variants={fadeIn}
-              whileHover={{ y: -10 }}
-              className="bg-white rounded-xl p-8 border border-gray-200"
-            >
-              <h3 className="text-xl font-bold mb-4">Standar</h3>
-              <p className="text-4xl font-bold mb-4">Rp200.000</p>
-              <p className="text-gray-600 mb-8">Sempurna untuk organisasi kecil</p>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center gap-2">
-                  <Check className="h-5 w-5 text-green-500" />
-                  <span className="text-sm">Hingga 5 pengguna</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-5 w-5 text-green-500" />
-                  <span className="text-sm">Pelaporan dasar</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-5 w-5 text-green-500" />
-                  <span className="text-sm">Penyimpanan 1GB</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <X className="h-5 w-5 text-gray-300" />
-                  <span className="text-sm text-gray-400">Analitik lanjutan</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <X className="h-5 w-5 text-gray-300" />
-                  <span className="text-sm text-gray-400">Dukungan prioritas</span>
-                </li>
-              </ul>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link
-                  href="#"
-                  className="block text-center bg-white border border-purple-600 text-purple-600 px-6 py-3 rounded-full font-medium"
-                >
-                  Pilih Paket
-                </Link>
-              </motion.div>
-            </motion.div>
-            <motion.div
-              variants={fadeIn}
-              whileHover={{ y: -10 }}
-              className="bg-primary rounded-xl p-8 border border-purple-600 text-white shadow-xl transform md:-translate-y-4"
-            >
-              <h3 className="text-xl font-bold mb-4">Profesional</h3>
-              <p className="text-4xl font-bold mb-4">Rp1.500.000</p>
-              <p className="text-purple-200 mb-8">Sempurna untuk organisasi berkembang</p>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center gap-2">
-                  <Check className="h-5 w-5 text-white" />
-                  <span className="text-sm">Hingga 20 pengguna</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-5 w-5 text-white" />
-                  <span className="text-sm">Pelaporan lanjutan</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-5 w-5 text-white" />
-                  <span className="text-sm">Penyimpanan 10GB</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-5 w-5 text-white" />
-                  <span className="text-sm">Analitik lanjutan</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <X className="h-5 w-5 text-purple-300" />
-                  <span className="text-sm text-purple-200">Dukungan prioritas</span>
-                </li>
-              </ul>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link
-                  href="#"
-                  className="block text-center bg-white text-purple-600 px-6 py-3 rounded-full font-medium"
-                >
-                  Pilih Paket
-                </Link>
-              </motion.div>
-            </motion.div>
-            <motion.div
-              variants={fadeIn}
-              whileHover={{ y: -10 }}
-              className="bg-white rounded-xl p-8 border border-gray-200"
-            >
-              <h3 className="text-xl font-bold mb-4">Enterprise</h3>
-              <p className="text-4xl font-bold mb-4">Rp1.000.000</p>
-              <p className="text-gray-600 mb-8">Sempurna untuk organisasi besar</p>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center gap-2">
-                  <Check className="h-5 w-5 text-green-500" />
-                  <span className="text-sm">Pengguna tidak terbatas</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-5 w-5 text-green-500" />
-                  <span className="text-sm">Pelaporan kustom</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-5 w-5 text-green-500" />
-                  <span className="text-sm">Penyimpanan tidak terbatas</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-5 w-5 text-green-500" />
-                  <span className="text-sm">Analitik lanjutan</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-5 w-5 text-green-500" />
-                  <span className="text-sm">Dukungan prioritas</span>
-                </li>
-              </ul>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link
-                  href="#"
-                  className="block text-center bg-white border border-purple-600 text-purple-600 px-6 py-3 rounded-full font-medium"
-                >
-                  Pilih Paket
-                </Link>
-              </motion.div>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
       {/* Download Section */}
       <section className="py-20 bg-primary text-white">
         <div className="container mx-auto px-6 md:px-12 lg:px-16">

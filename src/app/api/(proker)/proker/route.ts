@@ -24,7 +24,14 @@ export async function GET(request: Request) {
     const skip = (page - 1) * limit;
 
     // Build filter conditions
-    const where: any = {};
+    const where: any = {
+      // Exclude programs with these statuses
+      NOT: {
+        status: {
+          in: ["Disetujui", "On_Progress", "Done"]
+        }
+      }
+    };
 
     if (query) {
       where.OR = [

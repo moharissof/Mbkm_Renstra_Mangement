@@ -5,9 +5,6 @@ import { useState, useEffect } from "react"
 import {
   BarChart3,
   Calendar,
-  ChevronDown,
-  ChevronUp,
-  FileText,
   LayoutDashboard,
   SquareUser,
   FolderClock,
@@ -15,98 +12,126 @@ import {
   ShieldUser,
   SquareKanban,
   FileClock,
-  BookAudio
+  BookAudio,
+  Search,
+  Hourglass,
+  Bell
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Role } from "@/types/user"
 
-
-// Define menu items with role-based access
-const menuItems = [
+const menuCategories = [
   {
-    title: "Dashboard",
-    icon: LayoutDashboard,
-    href: "/dashboard",
-    roles: [Role.Admin, Role.Ketua, Role.Waket_1, Role.Waket_2, Role.Kabag, Role.Staff_Kabag], // All roles can access
+    name: "DASHBOARD",
+    items: [
+      {
+        title: "Dashboard",
+        icon: LayoutDashboard,
+        href: "/dashboard",
+        roles: [Role.Admin, Role.Ketua, Role.Waket_1, Role.Waket_2, Role.Kabag, Role.Staff_Kabag],
+      }
+    ]
   },
   {
-    title: "Bidang",
-    icon: SquareUser,
-    href: "/dashboard/bidang",
-    roles: [Role.Admin], 
+    name: "Master Data",
+    items: [
+      {
+        title: "Bidang",
+        icon: SquareUser,
+        href: "/dashboard/bidang",
+        roles: [Role.Admin], 
+      },
+      {
+        title: "Users",
+        icon: ShieldUser,
+        href: "/dashboard/user",
+        roles: [Role.Admin],
+      },
+      {
+        title: "Jabatan",
+        icon: Network,
+        href: "/dashboard/jabatan",
+        roles: [Role.Admin],
+      },
+      {
+        title: "Notifikasi",
+        icon: Bell,
+        href: "/dashboard/jabatan",
+        roles: [Role.Admin],
+      }
+    ]
   },
   {
-    title: "Periode Renstra",
-    icon: FolderClock,
-    href: "/dashboard/periode-renstra",
-    roles: [Role.Admin  ], // Only Admin and Kabag
+    name: "RENSTRA",
+    items: [
+      {
+        title: "Renstra",
+        icon: SquareKanban,
+        href: "/dashboard/renstra",
+        roles: [Role.Admin, Role.Waket_1, Role.Waket_2],
+      },
+      {
+        title: "Periode Renstra",
+        icon: FolderClock,
+        href: "/dashboard/periode-renstra",
+        roles: [Role.Admin],
+      },
+    ]
   },
   {
-    title: "Periode Proker",
-    icon: FileClock,
-    href: "/dashboard/periode-proker",
-    roles: [Role.Admin], // Only Admin and Kabag
+    name: "PROKER",
+    items: [
+      {
+        title: "Periode Proker",
+        icon: FileClock,
+        href: "/dashboard/periode-proker",
+        roles: [Role.Admin],
+      },
+      {
+        title: "Pengajuan Proker (Waket)",
+        icon: Hourglass,
+        href: "/proker/pengajuan/waket",
+        roles: [Role.Waket_1, Role.Waket_2],
+      },
+      {
+        title: "Search Proker (Waket)",
+        icon: Search,
+        href: "/history",
+        roles: [Role.Waket_1, Role.Waket_2],
+      },
+      {
+        title: "Pengajuan Proker (Kabag)",
+        icon: Hourglass,
+        href: "/proker/pengajuan/kabag",
+        roles: [Role.Kabag],
+      },
+      {
+        title: "Buat Proker",
+        icon: Calendar,
+        href: "/proker",
+        roles: [Role.Kabag, Role.Staff_Kabag],
+      },
+      {
+        title: "Daftar Proker",
+        icon: BookAudio,
+        href: "/proker/daftar",
+        roles: [Role.Kabag, Role.Staff_Kabag],
+      }
+    ]
   },
   {
-    title: "Users",
-    icon: ShieldUser,
-    href: "/dashboard/user",
-    roles: [Role.Admin], // Only Admin can manage users
-  },
-  {
-    title: "Renstra",
-    icon: SquareKanban,
-    href: "/dashboard/renstra",
-    roles: [Role.Admin, Role.Waket_1, Role.Waket_2], // Only Admin can manage positions
-  },
-  {
-    title: "Pengajuan Proker",
-    icon: SquareKanban,
-    href: "/proker/pengajuan/waket",
-    roles: [Role.Waket_1, Role.Waket_2], // Only Admin can manage positions
-  },
-  {
-    title: "Pengajuan Proker",
-    icon: SquareKanban,
-    href: "/proker/pengajuan/kabag",
-    roles: [Role.Kabag], // Only Admin can manage positions
-  },
-  {
-    title: "Buat Proker",
-    icon: Calendar,
-    href: "/proker",
-    roles: [Role.Kabag, Role.Staff_Kabag], // All roles can access
-  },
-  {
-    title: "Daftar Proker",
-    icon: BookAudio,
-    href: "/proker/daftar",
-    roles: [Role.Kabag, Role.Staff_Kabag], // All roles can access
-  },
-  {
-    title: "Jabatan",
-    icon: Network,
-    href: "/dashboard/jabatan",
-    roles: [Role.Admin], // Only Admin can manage positions
-  },
-  {
-    title: "Struktural",
-    icon: Network,
-    href: "/dashboard/struktural",
-    roles: [Role.Kabag, Role.Waket_1, Role.Waket_2], // Only Admin can manage positions
-  },
-  {
-    title: "Setting",
-    icon: BarChart3,
-    href: "#",
-    submenu: [
-      { title: "Bar Charts", href: "/charts/bar" },
-      { title: "Line Charts", href: "/charts/line" },
-    ],
-    roles: [Role.Admin, Role.Ketua, Role.Waket_1, Role.Waket_2], // Admin and management roles
-  },
+    name: "STRUKTURAL",
+    items: [
+      {
+        title: "Struktural",
+        icon: Network,
+        href: "/dashboard/struktural",
+        roles: [Role.Kabag, Role.Waket_1, Role.Waket_2],
+      }
+    ]
+  }
 ]
 
 interface DashboardSidebarProps {
@@ -119,12 +144,6 @@ export function DashboardSidebar({ isOpen = true, isMobile = false }: DashboardS
   const [userRole, setUserRole] = useState<Role | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // State to track which dropdown menus are open
-  const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
-    dashboard: true, // Dashboard menu starts open
-  })
-
-  // Fetch user role on component mount
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
@@ -146,109 +165,61 @@ export function DashboardSidebar({ isOpen = true, isMobile = false }: DashboardS
     fetchUserRole()
   }, [])
 
-  // Toggle a dropdown menu
-  const toggleMenu = (menu: string) => {
-    setOpenMenus((prev) => ({
-      ...prev,
-      [menu]: !prev[menu],
-    }))
-  }
-
-  // If it's mobile and not open, don't render
   if (isMobile && !isOpen) return null
 
-  // Filter menu items based on user role
-  const filteredMenuItems = menuItems.filter((item) => {
-    // If no user role or no roles specified for the item, don't show it
-    if (!userRole) return false
+  const filteredMenuCategories = menuCategories.map(category => ({
+    ...category,
+    items: category.items.filter(item => userRole && item.roles.includes(userRole))
+  })).filter(category => category.items.length > 0)
 
-    // Show the item if the user's role is in the item's allowed roles
-    return item.roles.includes(userRole)
-  })
-
-  const renderMenuItem = (item: (typeof menuItems)[0]) => {
+  const renderMenuItem = (item: typeof menuCategories[0]['items'][0]) => {
     const isActive = pathname === item.href
-    const hasSubmenu = item.submenu && item.submenu.length > 0
-    const isSubmenuOpen = openMenus[item.title.toLowerCase()]
-
-    if (hasSubmenu) {
-      return (
-        <div key={item.title}>
-          <Button
-            variant="ghost"
-            className={`w-full justify-start gap-2 py-2.5 px-3 text-base font-normal h-auto ${
-              isActive ? "bg-blue-50/50 text-blue-600" : "text-gray-600"
-            }`}
-            onClick={() => toggleMenu(item.title.toLowerCase())}
-          >
-            <item.icon className="h-5 w-5" />
-            {item.title}
-            {isSubmenuOpen ? <ChevronUp className="h-4 w-4 ml-auto" /> : <ChevronDown className="h-4 w-4 ml-auto" />}
-          </Button>
-
-          {isSubmenuOpen && item.submenu && (
-            <div className="pl-12">
-              {item.submenu.map((subItem) => (
-                <Button
-                  key={subItem.title}
-                  variant="ghost"
-                  className={`w-full justify-start text-gray-600 hover:bg-blue-50 hover:text-blue-600 py-2.5 text-base font-normal h-auto ${
-                    pathname === subItem.href ? "bg-blue-50/50 text-blue-600" : ""
-                  }`}
-                  asChild
-                >
-                  <Link href={subItem.href}>{subItem.title}</Link>
-                </Button>
-              ))}
-            </div>
-          )}
-        </div>
-      )
-    }
-
     return (
-      <Button
-        key={item.title}
-        variant="ghost"
-        className={`w-full justify-start gap-2 py-2.5 px-3 text-base font-normal h-auto ${
-          pathname === item.href ? "bg-blue-50/50 text-blue-600" : "text-gray-600"
-        }`}
-        asChild
-      >
-        <Link href={item.href}>
-          <item.icon className="h-5 w-5" />
-          {item.title}
-        </Link>
-      </Button>
+      <Link key={item.href} href={item.href}>
+        <Button
+          variant={isActive ? "secondary" : "ghost"}
+          className={`w-full justify-start ${isActive ? "bg-blue-50 text-blue-600" : "text-gray-700"} pl-4 h-10`}
+        >
+          <item.icon className="mr-3 h-4 w-4" />
+          <span className="text-sm font-medium">{item.title}</span>
+        </Button>
+      </Link>
     )
   }
 
-
   const sidebarContent = (
-    <div className="space-y-2">
-      <div className="mb-4 text-xs uppercase flex leading-[20px] text-gray-400 font-normal">MENU</div>
-
-      {/* Render menu items based on user role */}
-      {filteredMenuItems.map(renderMenuItem)}
+    <div className="space-y-8">
+      {filteredMenuCategories.map((category) => (
+        <div key={category.name} className="space-y-2">
+          <div className="text-xs uppercase tracking-wider text-gray-500 font-medium px-4">
+            {category.name}
+          </div>
+          <div className="space-y-2">
+            {category.items.map(renderMenuItem)}
+          </div>
+        </div>
+      ))}
     </div>
   )
 
-  // Mobile sidebar
   if (isMobile) {
-    return <div className="md:hidden border-b bg-white p-4">{sidebarContent}</div>
+    return (
+      <div className="md:hidden border-b bg-white p-4">
+        {sidebarContent}
+      </div>
+    )
   }
 
-  // Desktop sidebar
   return (
-    <div className="w-[280px] border-r bg-white px-6 py-7 hidden md:block">
-      <div className="flex items-center gap-3 mb-10">
+    <div className="w-[280px] border-r bg-white px-4 py-6 hidden md:block">
+      <div className="flex items-center gap-3 mb-8 pl-4">
         <div className="h-[36px] w-[36px] rounded-lg bg-blue-600 flex items-center justify-center">
           <BarChart3 className="h-[22px] w-[22px] text-white" />
         </div>
-        <h1 className="text-2xl font-semibold">E- Renstra</h1>
+        <h1 className="text-2xl font-semibold">E-Renstra</h1>
       </div>
 
-      <div className="space-y-6">{sidebarContent}</div>
+      {sidebarContent}
     </div>
   )
 }

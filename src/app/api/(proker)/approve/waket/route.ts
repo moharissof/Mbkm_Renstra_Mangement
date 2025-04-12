@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
+import { createNotification } from "@/services/Notification"
 import { serializeBigInt } from "@/lib/prisma"
 
 export async function POST(req: Request) {
@@ -9,21 +10,17 @@ export async function POST(req: Request) {
 
     // Validasi program
     const program = await prisma.program_kerja.findUnique({
-      where: { id: Number(programId) }
+      where: { id: Number(programId) },
+      include: {
+        users: true // Include creator data for notification
+      }
     })
 
     if (!program) {
       return NextResponse.json({ error: "Program tidak ditemukan" }, { status: 404 })
     }
 
-    // if (program.status !== "Menunggu_Approve_Waket") {
-    //   return NextResponse.json(
-    //     { error: "Program tidak siap untuk approval kedua" },
-    //     { status: 400 }
-    //   )
-    // }
-
-    // Update status program langsung
+    // Update status program
     const updatedProgram = await prisma.program_kerja.update({
       where: { id: Number(programId) },
       data: {
@@ -41,7 +38,35 @@ export async function POST(req: Request) {
         }
       }
     })
+
+    // Serialize program data
     const updatedProgramSerialize = serializeBigInt(updatedProgram)
+
+    // Create notification based on approval status
+    if (status) {
+      // Approval notification
+      await createNotification({
+        title: updatedProgramSerialize.nama,
+        message: "Program kerja Anda telah disetujui pada tahap kedua",
+        type: "Approval",
+        senderId: updatedProgramSerialize.user_id,
+        recipientId: program.users.id, // Send to creator
+        relatedEntity: "ProgramKerja",
+        relatedEntityId: Number(updatedProgramSerialize.id)
+      })
+    } else {
+      // Rejection notification
+      await createNotification({
+        title: updatedProgramSerialize.nama,
+        message: `Program kerja Anda ditolak pada tahap kedua. Alasan: ${alasan_penolakan}`,
+        type: "Rejection",
+        senderId: updatedProgramSerialize.user_id,
+        recipientId: program.users.id, // Send to creator
+        relatedEntity: "ProgramKerja",
+        relatedEntityId: Number(updatedProgramSerialize.id)
+      })
+    }
+
     return NextResponse.json({
       success: true,
       program: updatedProgramSerialize

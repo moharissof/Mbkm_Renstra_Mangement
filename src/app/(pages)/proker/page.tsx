@@ -1,45 +1,48 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { DashboardLayout } from "@/components/dashboard/layout";
-import { Button } from "@/components/ui/button";
-import { StatusChangeDialog } from "./_component/ModalPengajuan";
-import RoleGuard from "@/middleware/RoleGuard";
-import { Role } from "@/types/user";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2, PlusCircle, Filter } from "lucide-react";
-import { DataTableCard } from "@/components/DataTable/CardTable";
-import { createProgramKerjaColumns } from "./_component/Column";
-import { PageLoader } from "@/components/ui/loader";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { DashboardLayout } from "@/components/dashboard/layout"
+import { Button } from "@/components/ui/button"
+import { StatusChangeDialog } from "./_component/ModalPengajuan"
+import { RejectionReasonModal } from "./_component/ModalPenolakan"
+import { ResubmitProgramModal } from "./_component/ModalSubmit"
+import RoleGuard from "@/middleware/RoleGuard"
+import { Role } from "@/types/user"
+import { useToast } from "@/hooks/use-toast"
+import { Loader2, PlusCircle, Filter } from "lucide-react"
+import { DataTableCard } from "@/components/DataTable/CardTable"
+import { createProgramKerjaColumns } from "./_component/Column"
+import { PageLoader } from "@/components/ui/loader"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function ProgramKerjaPage() {
-  const router = useRouter();
+  const router = useRouter()
   const [user, setUser] = useState<{
-    [x: string]: any;
-    id?: string;
-  }>({});
-  const { error: showError } = useToast();
+    [x: string]: any
+    id?: string
+  }>({})
+  const { toast, error: showError } = useToast()
 
-  const [loading, setLoading] = useState(true);
-  const [programs, setPrograms] = useState<any[]>([]);
-  const [totalPrograms, setTotalPrograms] = useState(0);
-  const [periodes, setPeriodes] = useState<any[]>([]);
-  const [selectedPeriode, setSelectedPeriode] = useState<string | null>(null);
-  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true)
+  const [programs, setPrograms] = useState<any[]>([])
+  const [totalPrograms, setTotalPrograms] = useState(0)
+  const [periodes, setPeriodes] = useState<any[]>([])
+  const [selectedPeriode, setSelectedPeriode] = useState<string | null>(null)
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null)
 
   // Status change dialog state
-  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
-  const [selectedProgram, setSelectedProgram] = useState<any>(null);
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false)
+  const [selectedProgram, setSelectedProgram] = useState<any>(null)
+
+  // Rejection reason modal state
+  const [rejectionReasonModalOpen, setRejectionReasonModalOpen] = useState(false)
+
+  // Resubmit program modal state
+  const [resubmitModalOpen, setResubmitModalOpen] = useState(false)
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -49,145 +52,197 @@ export default function ProgramKerjaPage() {
           headers: {
             "Content-Type": "application/json",
           },
-        });
-        const { user: userData } = await response.json();
-        console.log("userData", userData);
-        setUser(userData); // Simpan data user ke state
+        })
+        const { user: userData } = await response.json()
+        console.log("userData", userData)
+        setUser(userData) // Simpan data user ke state
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.error("Error fetching user data:", error)
       }
-    };
+    }
 
-    fetchUser();
-  }, []);
+    fetchUser()
+  }, [])
+
   // Fetch active periods
   useEffect(() => {
     const fetchPeriodes = async () => {
       try {
-        const response = await fetch("/api/periode-proker");
-        if (!response.ok) throw new Error("Failed to fetch periods");
+        const response = await fetch("/api/periode-proker")
+        if (!response.ok) throw new Error("Failed to fetch periods")
 
-        const data = await response.json();
-        const periodesData = data.periodeProker || data;
-        setPeriodes(periodesData);
+        const data = await response.json()
+        const periodesData = data.periodeProker || data
+        setPeriodes(periodesData)
 
         // Auto-select the first active period if available
         const activePeriods = periodesData.filter((period: any) => {
-          const now = new Date();
-          const startDate = new Date(period.tanggal_mulai);
-          const endDate = new Date(period.tanggal_selesai);
-          return now >= startDate && now <= endDate;
-        });
+          const now = new Date()
+          const startDate = new Date(period.tanggal_mulai)
+          const endDate = new Date(period.tanggal_selesai)
+          return now >= startDate && now <= endDate
+        })
 
         if (activePeriods.length > 0 && !selectedPeriode) {
-          setSelectedPeriode(activePeriods[0].id);
+          setSelectedPeriode(activePeriods[0].id)
         }
       } catch (err) {
-        console.error("Error fetching periods:", err);
-        showError("Error", "Failed to fetch periods");
+        console.error("Error fetching periods:", err)
+        showError("Error", "Failed to fetch periods")
       }
-    };
+    }
 
-    fetchPeriodes();
-  }, []);
+    fetchPeriodes()
+  }, [])
 
   useEffect(() => {
     const fetchPrograms = async () => {
       // Don't fetch if user isn't available yet
-      console.log("user", user);
-      if (!user?.id) return;
+      console.log("user", user)
+      if (!user?.id) return
 
-      setLoading(true);
+      setLoading(true)
       try {
-        let url = "/api/proker?";
+        let url = "/api/proker?"
 
         if (selectedPeriode) {
-          url += `periode_proker_id=${selectedPeriode}&`;
+          url += `periode_proker_id=${selectedPeriode}&`
         }
 
         if (selectedStatus) {
-          url += `status=${selectedStatus}&`;
+          url += `status=${selectedStatus}&`
         }
 
-        url += `user_id=${user.id}&`;
+        url += `user_id=${user.id}&`
 
-        const response = await fetch(url);
-        if (!response.ok) throw new Error("Failed to fetch programs");
+        const response = await fetch(url)
+        if (!response.ok) throw new Error("Failed to fetch programs")
 
-        const data = await response.json();
-        setPrograms(data.programKerja || data);
-        setTotalPrograms(
-          data.total || data.programKerja?.length || data.length || 0
-        );
+        const data = await response.json()
+        setPrograms(data.programKerja || data)
+        setTotalPrograms(data.total || data.programKerja?.length || data.length || 0)
       } catch (err) {
-        console.error("Error fetching programs:", err);
-        showError("Error", "Failed to fetch programs");
+        console.error("Error fetching programs:", err)
+        showError("Error", "Failed to fetch programs")
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchPrograms();
-  }, [selectedPeriode, selectedStatus, user]); // Add user to dependencies
+    fetchPrograms()
+  }, [selectedPeriode, selectedStatus, user]) // Add user to dependencies
 
   const handleCreateProgram = () => {
-    router.push("/proker/renstra");
-  };
+    router.push("/proker/renstra")
+  }
 
   const handleViewProgram = (program: any) => {
-    router.push(`/proker/${program.id}`);
-  };
+    router.push(`/proker/${program.id}`)
+  }
 
   const handleEditProgram = (program: any) => {
-    router.push(`/proker/edit/${program.id}`);
-  };
+    router.push(`/proker/edit/${program.id}`)
+  }
 
   const handleDeleteProgram = async (program: any) => {
     if (!confirm(`Are you sure you want to delete "${program.nama}"?`)) {
-      return;
+      return
     }
 
     try {
       const response = await fetch(`/api/proker/${program.id}`, {
         method: "DELETE",
-      });
+      })
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to delete program");
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Failed to delete program")
       }
 
       // Refresh the program list
-      const updatedPrograms = programs.filter((p) => p.id !== program.id);
-      setPrograms(updatedPrograms);
-      setTotalPrograms((prev) => prev - 1);
+      const updatedPrograms = programs.filter((p) => p.id !== program.id)
+      setPrograms(updatedPrograms)
+      setTotalPrograms((prev) => prev - 1)
+
+      toast({
+        title: "Program Deleted",
+        description: "Program has been successfully deleted",
+        variant: "success",
+      })
     } catch (error) {
-      console.error("Error deleting program:", error);
-      showError(
-        "Error",
-        error instanceof Error ? error.message : "Failed to delete program"
-      );
+      console.error("Error deleting program:", error)
+      showError("Error", error instanceof Error ? error.message : "Failed to delete program")
     }
-  };
+  }
+
   const handleChangeStatus = (program: any) => {
-    setSelectedProgram(program);
-    setStatusDialogOpen(true);
-  };
+    setSelectedProgram(program)
+    setStatusDialogOpen(true)
+  }
+
+  const handleShowRejectionReason = (program: any) => {
+    setSelectedProgram(program)
+    setRejectionReasonModalOpen(true)
+  }
+
+  const handleResubmit = (program: any) => {
+    setSelectedProgram(program)
+    setResubmitModalOpen(true)
+  }
+
+  const handleProgramResubmitted = () => {
+    // Refresh the program list after resubmission
+    setPrograms([])
+    setLoading(true)
+
+    const fetchPrograms = async () => {
+      try {
+        let url = "/api/proker?"
+
+        if (selectedPeriode) {
+          url += `periode_proker_id=${selectedPeriode}&`
+        }
+
+        if (selectedStatus) {
+          url += `status=${selectedStatus}&`
+        }
+
+        url += `user_id=${user.id}&`
+
+        const response = await fetch(url)
+        if (!response.ok) throw new Error("Failed to fetch programs")
+
+        const data = await response.json()
+        setPrograms(data.programKerja || data)
+        setTotalPrograms(data.total || data.programKerja?.length || data.length || 0)
+      } catch (err) {
+        console.error("Error fetching programs:", err)
+        showError("Error", "Failed to fetch programs")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPrograms()
+  }
+
   // Create columns with the actions
   const programColumns = createProgramKerjaColumns(
     handleViewProgram,
     handleEditProgram,
     handleDeleteProgram,
-    handleChangeStatus
-  );
+    handleChangeStatus,
+    handleShowRejectionReason,
+    handleResubmit,
+  )
 
   // Count programs by status
-  const draftCount = programs.filter((p) => p.status === "Draft").length;
-  const planningCount = programs.filter((p) => p.status === "Planning").length;
-  const approvedCount = programs.filter((p) => p.status === "Disetujui").length;
-  const rejectedCount = programs.filter((p) => p.status === "Ditolak").length;
-  const doneCount = programs.filter((p) => p.status === "Done").length;
-  console.log("programs", rejectedCount);
+  const draftCount = programs.filter((p) => p.status === "Draft").length
+  const planningCount = programs.filter((p) => p.status === "Planning").length
+  const approvedCount = programs.filter((p) => p.status === "Disetujui").length
+  const rejectedCount = programs.filter((p) => p.status === "Ditolak").length
+  const doneCount = programs.filter((p) => p.status === "Done").length
+
   return (
     <RoleGuard allowedRoles={[Role.Kabag, Role.Staff_Kabag]}>
       {/* Jika loading dan users kosong, tampilkan PageLoader */}
@@ -240,20 +295,14 @@ export default function ProgramKerjaPage() {
 
                 <div className="flex flex-wrap gap-4">
                   <div className="w-full sm:w-auto">
-                    <Select
-                      value={selectedPeriode || ""}
-                      onValueChange={setSelectedPeriode}
-                    >
+                    <Select value={selectedPeriode || ""} onValueChange={setSelectedPeriode}>
                       <SelectTrigger className="w-full sm:w-[180px] bg-white border-gray-200">
                         <SelectValue placeholder="Pilih periode" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">Semua Periode</SelectItem>
                         {periodes.map((period) => (
-                          <SelectItem
-                            key={period.id}
-                            value={period.id.toString()}
-                          >
+                          <SelectItem key={period.id} value={period.id.toString()}>
                             {period.tahun}
                           </SelectItem>
                         ))}
@@ -262,14 +311,11 @@ export default function ProgramKerjaPage() {
                   </div>
 
                   <div className="w-full sm:w-auto">
-                    <Select
-                      value={selectedStatus || ""}
-                      onValueChange={setSelectedStatus}
-                    >
+                    <Select value={selectedStatus || ""} onValueChange={setSelectedStatus}>
                       <SelectTrigger className="w-full sm:w-[180px] bg-white border-gray-200">
                         <SelectValue placeholder="Pilih status" />
                       </SelectTrigger>
-                      <SelectContent> 
+                      <SelectContent>
                         <SelectItem value="Draft">Draft</SelectItem>
                         <SelectItem value="Planning">Planning</SelectItem>
                         <SelectItem value="Ditolak">Ditolak</SelectItem>
@@ -284,7 +330,7 @@ export default function ProgramKerjaPage() {
               <div className="flex justify-center items-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
-            ) : ( 
+            ) : (
               <DataTableCard
                 columns={programColumns}
                 data={programs}
@@ -293,32 +339,56 @@ export default function ProgramKerjaPage() {
                 searchColumn="nama"
                 searchPlaceholder="Cari program..."
                 extraActions={
-                  <Button
-                    size="sm"
-                    className="h-10"
-                    onClick={handleCreateProgram}
-                  >
+                  <Button size="sm" className="h-10" onClick={handleCreateProgram}>
                     <PlusCircle className="mr-2 h-4 w-4" /> Program Baru
                   </Button>
                 }
               />
             )}
+
             {/* Status Change Dialog */}
             {selectedProgram && (
-              <StatusChangeDialog
-                program={selectedProgram}
-                isOpen={statusDialogOpen}
-                role={user?.jabatan?.role || "Staff_Kabag"} // Changed User to user and added optional chaining
-                onClose={() => {
-                  setStatusDialogOpen(false);
-                  setSelectedProgram(null);
-                }}
-                onStatusChanged={() => setPrograms([])}
-              />
+              <>
+                <StatusChangeDialog
+                  program={selectedProgram}
+                  isOpen={statusDialogOpen}
+                  role={user?.jabatan?.role || "Staff_Kabag"}
+                  onClose={() => {
+                    setStatusDialogOpen(false)
+                    setSelectedProgram(null)
+                  }}
+                  onStatusChanged={() => {
+                    setPrograms([])
+                    setLoading(true)
+                    // This will trigger the useEffect to fetch programs again
+                  }}
+                />
+
+                {/* Rejection Reason Modal */}
+                <RejectionReasonModal
+                  program={selectedProgram}
+                  isOpen={rejectionReasonModalOpen}
+                  onClose={() => {
+                    setRejectionReasonModalOpen(false)
+                    setSelectedProgram(null)
+                  }}
+                />
+
+                {/* Resubmit Program Modal */}
+                <ResubmitProgramModal
+                  program={selectedProgram}
+                  isOpen={resubmitModalOpen}
+                  onClose={() => {
+                    setResubmitModalOpen(false)
+                    setSelectedProgram(null)
+                  }}
+                  onResubmitted={handleProgramResubmitted}
+                />
+              </>
             )}
           </div>
         </DashboardLayout>
       )}
     </RoleGuard>
-  );
+  )
 }
