@@ -88,7 +88,7 @@ export default function ApprovedProgramsPage() {
 
       setLoading(true);
       try {
-        let url = `/api/proker?user_id=${user.id}&status=${selectedStatus}`;
+        let url = `/api/daftar?user_id=${user.id}&status=${selectedStatus}`;
 
         if (selectedPeriod && selectedPeriod !== "all") {
           url += `&periode_proker_id=${selectedPeriod}`;

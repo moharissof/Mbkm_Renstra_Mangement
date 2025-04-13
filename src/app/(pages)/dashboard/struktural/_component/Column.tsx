@@ -184,7 +184,7 @@ export const staffColumns: ColumnDef<StaffPerformance>[] = [
             </DropdownMenuItem>
             <DropdownMenuItem>
               <FileText className="mr-2 h-4 w-4" />
-              Lihat program
+               Export Program
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

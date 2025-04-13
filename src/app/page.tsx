@@ -73,9 +73,11 @@ export default function HomePage() {
           </nav>
 
           <div className="hidden md:block">
-            <Button variant="outline" size="sm" className="rounded-full px-4">
-              Masuk
-            </Button>
+            <Link href="/login">
+              <Button variant="outline" size="sm" className="rounded-full px-4">
+                Masuk
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -161,7 +163,7 @@ export default function HomePage() {
               <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
                 Kelola Perencanaan Strategis Seperti Ahli
               </h1>
-              <p className="text-lg text-gray-600 max-w-[540px]">
+              <p className="text-md text-gray-600 max-w-[540px]">
                 E-Renstra membantu Anda menyusun dan mengelola rencana strategis
                 dengan mudah dan efisien, sehingga Anda dapat fokus pada
                 pencapaian target.
@@ -182,18 +184,6 @@ export default function HomePage() {
               className="relative mx-auto w-full max-w-[550px]"
             >
               <div className="bg-gray-100 rounded-3xl p-6 relative">
-                <div className="absolute top-8 left-4">
-                  <div className="bg-blue-600 text-white rounded-lg p-2 flex items-center gap-2 text-xs">
-                    <BarChart3 className="h-4 w-4" />
-                    <span>Analisis</span>
-                  </div>
-                </div>
-                <div className="absolute top-8 right-4">
-                  <div className="bg-green-600 text-white rounded-lg p-2 flex items-center gap-2 text-xs">
-                    <Users className="h-4 w-4" />
-                    <span>Tim Support</span>
-                  </div>
-                </div>
                 <div className="flex justify-center items-center h-full">
                   <Image
                     src="/images/home.jpg"

@@ -34,16 +34,17 @@ export default function ApprovedProgramsPage() {
   const router = useRouter();
   const [programs, setPrograms] = useState<any[]>([]);
   const [filteredPrograms, setFilteredPrograms] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const userId = params.id as string;
   const [searchTerm, setSearchTerm] = useState("");
 
   const [periods, setPeriods] = useState<any[]>([]);
-  const [selectedStatus, setSelectedStatus] = useState<string>("Disetujui");
+  const [selectedStatus, setSelectedStatus] = useState<string>("Planning");
   const [selectedPeriod, setSelectedPeriod] = useState<string>("");
 
   // Define status options
   const statusOptions = [
+    { value: "Planning", label: "Perencanaan" },
     { value: "Disetujui", label: "Disetujui" },
     { value: "On_Progress", label: "Dikerjakan" },
     { value: "Done", label: "Selesai" },
@@ -72,7 +73,7 @@ export default function ApprovedProgramsPage() {
 
       setLoading(true);
       try {
-        let url = `/api/proker?user_id=${userId}&status=${selectedStatus}`;
+        let url = `/api/daftar?user_id=${userId}&status=${selectedStatus}`;
 
         if (selectedPeriod && selectedPeriod !== "all") {
           url += `&periode_proker_id=${selectedPeriod}`;
@@ -104,7 +105,7 @@ export default function ApprovedProgramsPage() {
     if (searchTerm.trim() === "") {
       setFilteredPrograms(programs);
     } else {
-      const filtered = programs.filter(program =>
+      const filtered = programs.filter((program) =>
         program.nama.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredPrograms(filtered);
@@ -113,6 +114,12 @@ export default function ApprovedProgramsPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
+      case "Planning":
+        return (
+          <Badge className="bg-orange-500 hover:bg-orange-600">
+            Perencanaan
+          </Badge>
+        );
       case "Disetujui":
         return (
           <Badge className="bg-blue-500 hover:bg-blue-600">Disetujui</Badge>
@@ -136,7 +143,9 @@ export default function ApprovedProgramsPage() {
     return (
       <DashboardLayout>
         <div className="space-y-6 p-6">
-          <h1 className="text-2xl font-bold">Program Kerja</h1>
+          <h1 className="text-2xl font-bold">
+            Daftar Program Kerja {programs?.[0]?.users?.name}
+          </h1>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <Card key={i} className="overflow-hidden border-none shadow-md">
@@ -164,7 +173,7 @@ export default function ApprovedProgramsPage() {
     <DashboardLayout>
       <div className="space-y-6 p-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Program Kerja</h1>
+          <h1 className="text-2xl font-bold"> Daftar Program Kerja {programs?.[0]?.users?.name}</h1>
         </div>
 
         {/* Filter Section */}
@@ -252,18 +261,12 @@ export default function ApprovedProgramsPage() {
                             "Tidak ada bidang"}
                         </Badge>
                       </div>
-                      <div className="text-center z-10">
-                        <h3 className="text-xl font-bold mb-2 line-clamp-2">
-                          {program.nama}
-                        </h3>
-                        <p className="text-sm opacity-90">
-                          {program.point_renstra?.nama ||
-                            "Tidak ada poin strategis"}
-                        </p>
-                      </div>
                     </div>
                   </CardHeader>
                   <CardContent className="p-6 space-y-4">
+                    <h3 className="text-xl font-bold mb-2 line-clamp-2">
+                      {program.nama}
+                    </h3>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
