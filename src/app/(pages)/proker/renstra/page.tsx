@@ -53,6 +53,7 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
+import { Status } from "@prisma/client";
 
 export default function SelectPointRenstraPage() {
   const router = useRouter();
@@ -86,7 +87,10 @@ export default function SelectPointRenstraPage() {
         if (!response.ok) throw new Error("Failed to fetch periods");
 
         const data = await response.json();
-        setPeriodes(data.periode || data);
+        const activePeriodes = (data.periode || data).filter(
+          (periode: { status: Status }) => periode.status === Status.Aktif
+        );
+        setPeriodes(activePeriodes);
       } catch (err) {
         console.error("Error fetching periods:", err);
         showError("Error", "Failed to fetch active periods");
@@ -95,7 +99,6 @@ export default function SelectPointRenstraPage() {
 
     fetchPeriodes();
   }, []);
-
   // Fetch renstra when periode changes
   useEffect(() => {
     if (!selectedPeriode) return;
@@ -216,7 +219,6 @@ export default function SelectPointRenstraPage() {
     return icons[index % icons.length];
   };
 
-  
   const getIconBgColor = (index: number) => {
     const colors = [
       "bg-emerald-100",
@@ -293,7 +295,6 @@ export default function SelectPointRenstraPage() {
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-
         </div>
         <Card className="border-t-4 border-t-primary">
           <CardHeader>
@@ -343,7 +344,7 @@ export default function SelectPointRenstraPage() {
                   onValueChange={setSelectedRenstra}
                   disabled={!selectedPeriode || loading}
                 >
-                  <SelectTrigger className="border-gray-300 bg-white">
+                  <SelectTrigger className="border-gray-300 bg-white truncate max-w-[200px]">
                     <SelectValue placeholder="Pilih Renstra" />
                   </SelectTrigger>
                   <SelectContent>
@@ -356,6 +357,7 @@ export default function SelectPointRenstraPage() {
                         <SelectItem
                           key={renstra.id}
                           value={renstra.id.toString()}
+                          className="break-words max-w-xs" // Tambahkan ini
                         >
                           {renstra.nama}
                         </SelectItem>
@@ -372,7 +374,7 @@ export default function SelectPointRenstraPage() {
                   onValueChange={setSelectedSubRenstra}
                   disabled={!selectedRenstra || loading}
                 >
-                  <SelectTrigger className="border-gray-300 bg-white">
+                  <SelectTrigger className="border-gray-300 bg-white truncate max-w-[200px]">
                     <SelectValue placeholder="Pilih sub renstra" />
                   </SelectTrigger>
                   <SelectContent>
@@ -385,6 +387,7 @@ export default function SelectPointRenstraPage() {
                         <SelectItem
                           key={subRenstra.id}
                           value={subRenstra.id.toString()}
+                          className="break-words max-w-xs" // Tambahkan ini
                         >
                           {subRenstra.nama}
                         </SelectItem>
@@ -455,9 +458,7 @@ export default function SelectPointRenstraPage() {
                     <CardContent className="pt-4">
                       {point.bidang && (
                         <div className="mb-4">
-                          <span className="text-sm text-gray-500">
-                            Bidang:
-                          </span>
+                          <span className="text-sm text-gray-500">Bidang:</span>
                           <div className="font-medium flex items-center gap-2 mt-1">
                             <div className="h-6 w-6 rounded-full bg-gray-100 flex items-center justify-center">
                               <BarChart3 className="h-3.5 w-3.5 text-gray-600" />
@@ -468,7 +469,7 @@ export default function SelectPointRenstraPage() {
                       )}
                     </CardContent>
                     <CardFooter className="bg-white flex justify-between">
-                    <Button
+                      <Button
                         variant="outline"
                         size="sm"
                         className="gap-1"

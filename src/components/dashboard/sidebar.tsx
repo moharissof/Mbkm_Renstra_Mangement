@@ -15,7 +15,8 @@ import {
   BookAudio,
   Search,
   Hourglass,
-  Bell
+  Bell,
+  CircleCheck
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -93,6 +94,12 @@ const menuCategories = [
         title: "Pengajuan Proker (Waket)",
         icon: Hourglass,
         href: "/proker/pengajuan/waket",
+        roles: [Role.Waket_1, Role.Waket_2],
+      },
+      {
+        title: "Pengajuan Penyelesaian",
+        icon: CircleCheck,
+        href: "/proker/done",
         roles: [Role.Waket_1, Role.Waket_2],
       },
       {
