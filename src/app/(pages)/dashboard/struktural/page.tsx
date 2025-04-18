@@ -55,7 +55,7 @@ export default function StaffPerformancePage() {
         }
 
         const responseData = await response.json()
-
+        console.log("responseData", responseData)
         // Check if we have the expected data structure with data property
         if (responseData && responseData.data && Array.isArray(responseData.data)) {
           // Transform the data to match the StaffPerformance type

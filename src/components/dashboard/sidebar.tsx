@@ -97,9 +97,15 @@ const menuCategories = [
         roles: [Role.Waket_1, Role.Waket_2],
       },
       {
-        title: "Pengajuan Penyelesaian",
+        title: "Pengajuan Penyelesaian (Kabag)",
         icon: CircleCheck,
-        href: "/proker/done",
+        href: "/proker/done/kabag",
+        roles: [Role.Kabag],
+      },
+      {
+        title: "Pengajuan Penyelesaian (Waket)",
+        icon: CircleCheck,
+        href: "/proker/done/waket",
         roles: [Role.Waket_1, Role.Waket_2],
       },
       {

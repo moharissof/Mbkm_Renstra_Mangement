@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react"; // Import loader icon
+import { useState } from "react"; // Import useState untuk state loading
 
 export function VerificationDialog({
   program,
@@ -22,27 +24,32 @@ export function VerificationDialog({
   program: any;
   isOpen: boolean;
   onClose: () => void;
-  onVerify: (verified: boolean) => void;
+  onVerify: (verified: boolean) => Promise<void>; // Ubah menjadi Promise untuk handle async
 }) {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false); // State untuk loading
 
   const handleVerification = async (verified: boolean) => {
+    setIsSubmitting(true); // Aktifkan loading
     try {
-      onVerify(verified);
+      await onVerify(verified); // Tunggu proses verifikasi selesai
     } catch (error) {
       toast({
         title: "Error",
         description: "Gagal memverifikasi program",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false); // Matikan loading baik sukses maupun gagal
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={isSubmitting ? undefined : onClose}>
+      {/* Disable tutup dialog saat loading */}
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Verifikasi Penyelesaian Program</DialogTitle>
+          <DialogTitle>Verifikasi Penyelesaian Kabag</DialogTitle>
           <DialogDescription>
             Program <strong>{program.nama}</strong> telah mencapai 100% progress.
             Verifikasi bahwa program ini benar-benar telah selesai?
@@ -67,11 +74,29 @@ export function VerificationDialog({
             variant="outline"
             onClick={() => handleVerification(false)}
             className="text-red-600 border-red-600 hover:bg-red-50"
+            disabled={isSubmitting} // Disable tombol saat loading
           >
-            Tolak
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Memproses...
+              </>
+            ) : (
+              "Tolak"
+            )}
           </Button>
-          <Button onClick={() => handleVerification(true)}>
-            Verifikasi Selesai
+          <Button 
+            onClick={() => handleVerification(true)}
+            disabled={isSubmitting} // Disable tombol saat loading
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Memproses...
+              </>
+            ) : (
+              "Verifikasi Selesai"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

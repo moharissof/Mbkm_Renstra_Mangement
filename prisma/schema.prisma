@@ -152,8 +152,9 @@ enum Status_Proker {
   Planning 
   Menunggu_Approve_Waket 
   Disetujui
-  Ditolak
+  Ditolak 
   On_Progress
+  Pengajuan_penyelesaian
   Done
   @@schema("public")
 }

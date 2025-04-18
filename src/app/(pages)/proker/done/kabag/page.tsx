@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, PlusCircle, Check, X, FileText, Eye } from "lucide-react";
 import { DataTableCard } from "@/components/DataTable/CardTable";
-import { VerificationDialog } from "../_component/VerificationModal";
+import { VerificationDialog } from "../../_component/VerificationModalKabag";
 
 interface ProgramKerja {
   id: string;
@@ -90,7 +90,7 @@ export default function ProgramVerificationPage() {
       try {
         // Fetch programs with 100% progress but not yet verified
         const response = await fetch(
-          `/api/done?bidang_id=${user.jabatan?.bidang_id}&completed=true`
+          `/api/done/kabag?user_id=${user.id}&completed=true`
         );
         
         if (!response.ok) {
@@ -132,7 +132,7 @@ export default function ProgramVerificationPage() {
     if (!selectedProgram) return;
 
     try {
-      const response = await fetch(`/api/done/${selectedProgram.id}/verify`, {
+      const response = await fetch(`/api/done/${selectedProgram.id}/kabag`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -144,7 +144,7 @@ export default function ProgramVerificationPage() {
 
       // Refresh the list after verification
       const updatedResponse = await fetch(
-        `/api/done?bidang_id=${user.jabatan?.bidang_id}&completed=true`
+        `/api/done/kabag?user_id=${user.id}`
       );
       const { programKerja, total } = await updatedResponse.json();
       setPrograms(programKerja);

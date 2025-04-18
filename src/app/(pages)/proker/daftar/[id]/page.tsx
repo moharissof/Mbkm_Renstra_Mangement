@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { ExportButton } from "@/components/Export/button";
 
 export default function ApprovedProgramsPage() {
   const params = useParams();
@@ -117,7 +118,7 @@ export default function ApprovedProgramsPage() {
       case "Planning":
         return (
           <Badge className="bg-orange-500 hover:bg-orange-600">
-            Perencanaan
+            Perencanaan 
           </Badge>
         );
       case "Disetujui":
@@ -173,9 +174,11 @@ export default function ApprovedProgramsPage() {
     <DashboardLayout>
       <div className="space-y-6 p-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold"> Daftar Program Kerja {programs?.[0]?.users?.name}</h1>
+          <h1 className="text-2xl font-bold">
+            {" "}
+            Daftar Program Kerja {programs?.[0]?.users?.name}
+          </h1>
         </div>
-
         {/* Filter Section */}
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex items-center gap-2 w-full md:w-auto">
@@ -214,19 +217,58 @@ export default function ApprovedProgramsPage() {
                 ))}
             </SelectContent>
           </Select>
-
-          {/* Search Input */}
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Cari berdasarkan nama program..."
-              className="pl-8"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+          <div className="flex gap-2">
+            <ExportButton
+              userId={userId}
+              periodeId={selectedPeriod}
+              onExportStart={() => toast({ title: "Mempersiapkan ekspor..." })}
+              onExportSuccess={() =>
+                toast({
+                  title: "Ekspor berhasil!",
+                  description: "File Excel telah diunduh",
+                })
+              }
+              onExportError={() =>
+                toast({
+                  title: "Ekspor gagal",
+                  description: "Silakan coba lagi",
+                  variant: "destructive",
+                })
+              }
             />
           </div>
         </div>
-
+        {/* Search Input */}
+        <div className="relative flex items-center">
+          <Search className="absolute left-3 h-5 w-5 text-primary" />
+          <Input
+            placeholder="Cari program kerja berdasarkan nama..."
+            className="pl-10 pr-4 py-5 text-base rounded-lg border-2 border-gray-200 focus:border-primary focus-visible:ring-0 shadow-sm hover:border-gray-300 transition-colors"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm("")}
+              className="absolute right-3 text-gray-400 hover:text-primary transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          )}
+        </div>
         {filteredPrograms.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredPrograms.map((program) => {

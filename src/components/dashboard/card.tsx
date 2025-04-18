@@ -46,7 +46,7 @@ export function OrdersCard() {
   )
 }
 
-export function MonthlyTargetCard() {
+export function CalendarCard() {
   const [date, setDate] = useState<Date>(new Date())
   const [currentMonth, setCurrentMonth] = useState(new Date())
 

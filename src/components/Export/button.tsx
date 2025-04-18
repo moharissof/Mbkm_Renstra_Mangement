@@ -3,22 +3,37 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+
 interface ExportButtonProps {
   userId: string;
   periodeId: string;
+  className?: string;
+  onExportStart?: () => void;
+  onExportSuccess?: () => void;
+  onExportError?: () => void;
 }
 
-export function ExportButton({ userId, periodeId }: ExportButtonProps) {
+export function ExportButton({ 
+  userId, 
+  periodeId, 
+  className = "",
+  onExportStart,
+  onExportSuccess,
+  onExportError
+}: ExportButtonProps) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
 
   const handleExport = async () => {
     if (!userId || !periodeId) return;
     
     setLoading(true);
+    onExportStart?.();
+    
     try {
       // Trigger download
-      const url = `/api/export-proker?userId=${userId}&periodeId=${periodeId}`;
+      const url = `/api/export?userId=${userId}&periodeId=${periodeId}`;
       const response = await fetch(url);
       
       if (!response.ok) {
@@ -30,13 +45,15 @@ export function ExportButton({ userId, periodeId }: ExportButtonProps) {
       const downloadUrl = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = downloadUrl;
-      a.download = 'Laporan_Proker.xlsx';
+      a.download = `Laporan_Proker_${new Date().toISOString().split('T')[0]}.xlsx`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       
+      onExportSuccess?.();
     } catch (error) {
       console.error('Export error:', error);
+      onExportError?.();
       router.refresh();
     } finally {
       setLoading(false);
@@ -47,7 +64,7 @@ export function ExportButton({ userId, periodeId }: ExportButtonProps) {
     <Button 
       onClick={handleExport}
       disabled={loading || !periodeId}
-      className="bg-blue-600 hover:bg-blue-700 text-white"
+      className={`bg-blue-600 hover:bg-blue-700 text-white ${className}`}
     >
       {loading ? (
         <span className="flex items-center">

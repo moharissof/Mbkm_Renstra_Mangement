@@ -69,16 +69,17 @@ export async function GET(request: Request) {
     const where: any = {
       user_id: {
         in: userIdsInBidang
-      }
+      },
+      status: 'Pengajuan_penyelesaian'
     }
 
     // Tambahkan filter progress 100% dan status belum Done jika completedOnly true
-    if (completedOnly) {
-      where.progress = 100
-      where.NOT = {
-        status: 'Done'
-      }
-    }
+    // if (completedOnly) {
+    //   where.progress = 100
+    //   where.NOT = {
+    //     status: 'Done'
+    //   }
+    // }
 
     if (query) {
       where.OR = [
