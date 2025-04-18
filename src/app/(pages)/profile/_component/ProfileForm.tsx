@@ -70,8 +70,8 @@ export function ProfileForm({ user }: ProfileFormProps) {
       if (photoFile) {
         const uploadFormData = new FormData()
         uploadFormData.append("file", photoFile)
-
-        const uploadResponse = await fetch("/api/upload/profile-photo", {
+        uploadFormData.append("name", formData.name)
+        const uploadResponse = await fetch("/api/profile/upload-foto", {
           method: "POST",
           body: uploadFormData,
         })
@@ -81,7 +81,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         }
 
         const uploadData = await uploadResponse.json()
-        photoUrl = uploadData.url
+        photoUrl = uploadData.id // Use the Drive file ID directly
       }
 
       // Update profile
@@ -126,7 +126,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
           <div className="relative">
             <div className="h-24 w-24 rounded-full bg-blue-600 flex items-center justify-center overflow-hidden border-4 border-white shadow-md">
               <img
-                src={photoPreview || user.photo || "/images/orang.png"}
+                src={photoPreview || `https://drive.google.com/thumbnail?id=${user.photo}` || "/images/orang.png"}
                 alt={user.name}
                 className="h-full w-full object-cover"
               />

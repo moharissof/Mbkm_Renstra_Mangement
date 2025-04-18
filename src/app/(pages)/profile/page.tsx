@@ -41,12 +41,14 @@ export default function ProfilePage() {
         }
 
         const { user: userData } = await response.json();
+        console.log("userData", userData?.photo);
         setUser({
             ...userData,
             no_telp: userData.no_telp || "", // Provide default empty string
             jabatan_id: userData.jabatan_id ?? null, // Ensure jabatan_id is null if undefined
             jabatan: userData.jabatan || { nama: "Tidak ada jabatan" },
             isVerified: !!userData.isVerified, // Ensure isVerified is always a boolean
+
           });
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -94,11 +96,11 @@ export default function ProfilePage() {
               <div className="relative mb-4">
                 <div className="h-24 w-24 rounded-full bg-blue-600 flex items-center justify-center overflow-hidden border-4 border-white shadow-md">
                   <img
-                    src={user.photo || "/images/orang.png"}
+                    src={`https://drive.google.com/thumbnail?id=${user.photo}`}
                     alt={user.name}
                     className="h-full w-full object-cover"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = "/images/orang.png";
+                      (e.target as HTMLImageElement).src = `https://drive.google.com/thumbnail?id=${user.photo}`;
                     }}
                   />
                 </div>

@@ -223,7 +223,7 @@ export function DashboardSidebar({ isOpen = true, isMobile = false }: DashboardS
         <div className="h-[36px] w-[36px] rounded-lg bg-blue-600 flex items-center justify-center">
           <BarChart3 className="h-[22px] w-[22px] text-white" />
         </div>
-        <h1 className="text-2xl font-semibold">E-Renstra</h1>
+        <h1 className="text-2xl font-semibold">E-Kinerja</h1>
       </div>
 
       {sidebarContent}

@@ -2,7 +2,7 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, FileText } from "lucide-react";
+import { Eye, FileText, FolderClosed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
@@ -185,16 +185,16 @@ export const PengajuanProgramColumn = (
           </Button>
 
           <Link
-            href={`/proker/${program.id}/file`}
+            href={`/proker/${program.id}/files`}
             className="flex items-center gap-2 px-3 py-2 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100"
-            title="Lihat Detail Program"
+            title="Lihat File Program"
           >
-            <FileText className="h-4 w-4" />
+            <FolderClosed className="h-4 w-4" />
           </Link>
           <Link
-            href={`/proker/${program.id}/laporan`}  
+            href={`/proker/${program.id}/reports`}  
             className="flex items-center gap-2 px-3 py-2 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100"
-            title="Lihat Detail Program"
+            title="Lihat Detail Laporan"
             >
             <FileText className="h-4 w-4" />
           </Link>

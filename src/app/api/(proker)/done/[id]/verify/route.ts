@@ -4,10 +4,10 @@ type Params = Promise<{ id: string }>;
 export async function POST(request: Request, { params }: { params: Params }) {
   try {
     const id = (await params).id;
-    const { verified, verifiedBy } = await request.json();
+    const { verified } = await request.json();
 
     // Validasi input
-    if (typeof verified !== "boolean" || !verifiedBy) {
+    if (typeof verified !== "boolean") {
       return NextResponse.json(
         { error: "Data verifikasi tidak valid" },
         { status: 400 }

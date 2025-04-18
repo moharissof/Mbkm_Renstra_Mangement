@@ -137,13 +137,14 @@ export default function ProgramVerificationPage() {
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({ verified }), // Add this line
       });
 
       if (!response.ok) throw new Error("Failed to verify program");
 
       // Refresh the list after verification
       const updatedResponse = await fetch(
-        `/api/program-kerja?bidang_id=${user.jabatan?.bidang_id}&completed=true`
+        `/api/done?bidang_id=${user.jabatan?.bidang_id}&completed=true`
       );
       const { programKerja, total } = await updatedResponse.json();
       setPrograms(programKerja);

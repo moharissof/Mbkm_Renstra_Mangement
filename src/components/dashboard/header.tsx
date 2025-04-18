@@ -116,7 +116,7 @@ export function DashboardHeader({ onMenuToggle }: DashboardHeaderProps) {
               {loading ? (
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
               ) : userData?.photo ? (
-                <img src={userData.photo} alt="User" className="h-full w-full object-cover" />
+                <img src="https://lh3.googleusercontent.com/d/1Sbmh52FpvmB0mrIDQocrWDxnwPObOF1Q=s300" alt="User" className="h-full w-full object-cover" />
               ) : (
                 <img src="/images/orang.png" alt="User" className="h-full w-full object-cover" />
               )}

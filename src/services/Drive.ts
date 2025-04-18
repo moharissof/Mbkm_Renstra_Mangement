@@ -132,6 +132,38 @@ export async function ensureProgramFolder(programId: string, programName: string
   }
 }
 
+export async function ensureFolderProfile(name: string) {
+  try {
+    const mainFolder = await getMainFolder();
+    const query = `name = '${name}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
+    
+    const response = await drive.files.list({
+      q: query,
+      fields: "files(id, name, webViewLink)",
+      pageSize: 1
+    });
+
+    if (response.data.files && response.data.files.length > 0) {
+      return response.data.files[0];
+    }
+
+    // Create folder if not exists
+    const folder = await drive.files.create({
+      requestBody: {
+        name: name,
+        mimeType: "application/vnd.google-apps.folder",
+        parents: [mainFolder.id as string]
+      },
+      fields: "id, name, webViewLink",
+    });
+
+    return folder.data;
+  }catch(error : any) {
+    console.error("Error ensuring program folder:", error);
+    throw error;
+  }
+}
+
 // Upload file to program folder inside renstra
 export async function uploadToProgramFolder(
   programId: string,
