@@ -35,7 +35,7 @@ export default function HomePage() {
             <div className="h-[36px] w-[36px] rounded-lg bg-blue-600 flex items-center justify-center">
               <BarChart3 className="h-[22px] w-[22px] text-white" />
             </div>
-            <span className="text-lg font-bold text-blue-600">E-Renstra</span>
+            <span className="text-lg font-bold text-blue-600">E-Kinerja</span>
           </div>
 
           {/* Desktop Navigation */}
@@ -164,7 +164,7 @@ export default function HomePage() {
                 Kelola Perencanaan Strategis Seperti Ahli
               </h1>
               <p className="text-md text-gray-600 max-w-[540px]">
-                E-Renstra membantu Anda menyusun dan mengelola rencana strategis
+                E-Kinerja membantu Anda menyusun dan mengelola rencana strategis
                 dengan mudah dan efisien, sehingga Anda dapat fokus pada
                 pencapaian target.
               </p>
@@ -187,7 +187,7 @@ export default function HomePage() {
                 <div className="flex justify-center items-center h-full">
                   <Image
                     src="/images/home.jpg"
-                    alt="Dashboard E-Renstra"
+                    alt="Dashboard E-Kinerja"
                     width={400}
                     height={300}
                     className="mx-auto"
@@ -383,7 +383,7 @@ export default function HomePage() {
               <div className="bg-white rounded-2xl overflow-hidden shadow-lg">
                 <Image
                   src="/images/dashboard.png"
-                  alt="E-Renstra in action"
+                  alt="E-Kinerja in action"
                   width={600}
                   height={400}
                   className="w-full h-auto"
@@ -425,7 +425,7 @@ export default function HomePage() {
                 Tingkatkan Produktivitas
               </h2>
               <p className="text-gray-600">
-                E-Renstra membantu Anda mengoptimalkan proses perencanaan
+                E-Kinerja membantu Anda mengoptimalkan proses perencanaan
                 strategis, sehingga Anda dapat fokus pada hal-hal yang
                 benar-benar penting bagi organisasi Anda.
               </p>
@@ -452,10 +452,10 @@ export default function HomePage() {
               <div className="h-[36px] w-[36px] rounded-lg bg-blue-600 flex items-center justify-center">
                 <BarChart3 className="h-[22px] w-[22px] text-white" />
               </div>
-              <span className="text-lg font-bold text-gray-900">E-Renstra</span>
+              <span className="text-lg font-bold text-gray-900">E-Kinerja</span>
             </div>
             <div className="text-sm text-gray-500">
-              © {new Date().getFullYear()} E-Renstra. Hak Cipta Dilindungi.
+              © {new Date().getFullYear()} E-Kinerja. Hak Cipta Dilindungi.
             </div>
             <div className="flex gap-6">
               <Link
