@@ -1,56 +1,64 @@
-"use client"
+/* eslint-disable react/no-unescaped-entities */
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Slider } from "@/components/ui/slider"
-import { useToast } from "@/hooks/use-toast"
-import { Paperclip, Send } from "lucide-react"
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { useToast } from "@/hooks/use-toast";
+import { Paperclip, Send } from "lucide-react";
 
 interface ReportFormProps {
-  programId: string
-  userId: string
+  programId: string;
+  userId: string;
   initialProgress?: number; // Add initialProgress as an optional property
-
 }
 
 export default function ReportForm({ programId, userId }: ReportFormProps) {
-  const { toast } = useToast()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     laporan: "",
     realisasi: 0,
     link_file: "",
-  })
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSliderChange = (value: number[]) => {
-    setFormData((prev) => ({ ...prev, realisasi: value[0] }))
-  }
+    setFormData((prev) => ({ ...prev, realisasi: value[0] }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!formData.laporan.trim()) {
       toast({
         title: "Error",
         description: "Isi laporan wajib diisi",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
     try {
-      setIsSubmitting(true)
+      setIsSubmitting(true);
 
       const response = await fetch(`/api/reports`, {
         method: "POST",
@@ -62,37 +70,37 @@ export default function ReportForm({ programId, userId }: ReportFormProps) {
           user_id: userId,
           ...formData,
         }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error("Gagal mengirim laporan")
+        throw new Error("Gagal mengirim laporan");
       }
 
       toast({
         title: "Berhasil",
         description: "Laporan Anda telah terkirim",
-      })
+      });
 
       // Reset form
       setFormData({
         laporan: "",
         realisasi: 0,
         link_file: "",
-      })
+      });
 
       // Refresh the page to show the new report
-      window.location.reload()
+      window.location.reload();
     } catch (error) {
-      console.error("Error saat mengirim laporan:", error)
+      console.error("Error saat mengirim laporan:", error);
       toast({
         title: "Error",
         description: "Gagal mengirim laporan. Silakan coba lagi.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <Card>
@@ -131,32 +139,71 @@ export default function ReportForm({ programId, userId }: ReportFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="link_file">Tautan File (Opsional)</Label>
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="link_file">Tautan File (Opsional)</Label>
+              <p className="text-xs text-muted-foreground">
+                <span className="font-medium">Petunjuk Google Drive:</span>
+                <br />
+                1. Buka{" "}
+                <a
+                  href="https://drive.google.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  Google Drive
+                </a>
+                <br />
+                2. Unggah file Anda
+                <br />
+                3. Klik kanan file → "Dapatkan tautan"
+                <br />
+                4. Pilih "Siapa saja dengan tautan ini"
+                <br />
+                5. Salin tautan dan tempel di bawah
+              </p>
+            </div>
+
             <div className="flex gap-2">
               <Input
                 id="link_file"
                 name="link_file"
-                placeholder="Tempel tautan ke file atau dokumentasi Anda"
+                placeholder="Tempel tautan Google Drive Anda di sini"
                 value={formData.link_file}
                 onChange={handleChange}
+                className="flex-1"
               />
-              <Button type="button" variant="outline" size="icon">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() =>
+                  window.open("https://drive.google.com", "_blank")
+                }
+                title="Buka Google Drive"
+              >
                 <Paperclip className="h-4 w-4" />
               </Button>
             </div>
+
             <p className="text-xs text-muted-foreground">
-              Unggah file Anda ke Google Drive atau layanan lainnya dan tempel tautannya di sini
+              Pastikan file Anda sudah diatur ke "Siapa saja dengan tautan ini"
+              di Google Drive
             </p>
           </div>
         </CardContent>
 
         <CardFooter className="flex justify-end">
-          <Button type="submit" disabled={isSubmitting} className="flex items-center gap-2">
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="flex items-center gap-2"
+          >
             {isSubmitting ? "Mengirim..." : "Kirim Laporan"}
             <Send className="h-4 w-4" />
           </Button>
         </CardFooter>
       </form>
     </Card>
-  )
+  );
 }

@@ -142,7 +142,13 @@ const menuCategories = [
         icon: Network,
         href: "/dashboard/struktural",
         roles: [Role.Kabag, Role.Waket_1, Role.Waket_2],
-      }
+      },
+      {
+        title: "Struktural",
+        icon: Network,
+        href: "/dashboard/struktural/ketua",
+        roles: [Role.Ketua],
+      },
     ]
   }
 ]

@@ -38,17 +38,17 @@ export function StartProgramDialog({ program, isOpen, onClose, onProgramStarted 
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error || "Failed to start program")
+        throw new Error(errorData.error || "Gagal memulai program")
       }
 
       const updatedProgram = await response.json()
       onProgramStarted(updatedProgram)
       onClose()
     } catch (error) {
-      console.error("Error starting program:", error)
+      console.error("Error memulai program:", error)
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to start program",
+        description: error instanceof Error ? error.message : "Gagal memulai program",
         variant: "destructive",
       })
     } finally {
@@ -60,9 +60,9 @@ export function StartProgramDialog({ program, isOpen, onClose, onProgramStarted 
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Start Program</DialogTitle>
+          <DialogTitle>Mulai Program</DialogTitle>
           <DialogDescription>
-            Are you ready to start working on this program? This will change the status to "On_Progress".
+            Apakah Anda siap untuk mulai mengerjakan program ini? Ini akan mengubah status menjadi "On Progress".
           </DialogDescription>
         </DialogHeader>
 
@@ -79,9 +79,9 @@ export function StartProgramDialog({ program, isOpen, onClose, onProgramStarted 
             <div className="flex items-start gap-2">
               <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
               <div className="text-sm">
-                <p className="font-medium">Important Note</p>
+                <p className="font-medium">Catatan Penting</p>
                 <p className="text-muted-foreground">
-                  Once you start this program, you'll need to regularly update its progress until completion.
+                  Setelah memulai program ini, Anda perlu secara teratur memperbarui progresnya hingga selesai.
                 </p>
               </div>
             </div>
@@ -90,15 +90,15 @@ export function StartProgramDialog({ program, isOpen, onClose, onProgramStarted 
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={loading}>
-            Cancel
+            Batal
           </Button>
           <Button onClick={handleStartProgram} disabled={loading}>
             {loading ? (
-              "Starting..."
+              "Memulai..."
             ) : (
               <>
                 <PlayCircle className="mr-2 h-4 w-4" />
-                Start Program
+                Mulai Program
               </>
             )}
           </Button>
@@ -107,4 +107,3 @@ export function StartProgramDialog({ program, isOpen, onClose, onProgramStarted 
     </Dialog>
   )
 }
-

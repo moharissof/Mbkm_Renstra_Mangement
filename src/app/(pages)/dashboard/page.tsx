@@ -9,7 +9,7 @@ import { KanbanCard } from "@/components/kanban/card"
 export default function DashboardPage() {
 
   return (
-    <RoleGuard allowedRoles={[Role.Admin, Role.Waket_1, Role.Kabag, Role.Staff_Kabag, Role.Waket_2]}>
+    <RoleGuard allowedRoles={[Role.Admin, Role.Waket_1, Role.Kabag, Role.Staff_Kabag, Role.Waket_2, Role.Ketua]}>
       <DashboardLayout>
         <DashboardContainer>
           {/* Welcome Message Section */}

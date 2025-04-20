@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { ShieldAlert, Phone } from "lucide-react"
+import { ShieldAlert, Phone, LogIn } from "lucide-react"
 import Link from "next/link"
 
 export default function VerificationRequired() {
@@ -28,11 +28,17 @@ export default function VerificationRequired() {
             <p>Jika Anda merasa ini adalah kesalahan, silakan hubungi administrator sistem.</p>
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col gap-2 sm:flex-row">
+        <CardFooter className="flex flex-col gap-2">
           <Button className="w-full flex items-center gap-2" asChild>
             <Link href={whatsappUrl} target="_blank" rel="noopener noreferrer">
               <Phone className="h-4 w-4" />
               Hubungi Admin via WhatsApp
+            </Link>
+          </Button>
+          <Button variant="outline" className="w-full flex items-center gap-2" asChild>
+            <Link href="/auth/login">
+              <LogIn className="h-4 w-4" />
+              Kembali ke Halaman Login
             </Link>
           </Button>
         </CardFooter>

@@ -17,13 +17,13 @@ export default function VerifyEmailPage() {
   const supabase = createClientComponentClient()
 
   useEffect(() => {
-    // Get the email from localStorage
+    // Ambil email dari localStorage
     const storedEmail = localStorage.getItem("pendingVerificationEmail")
     if (storedEmail) {
       setEmail(storedEmail)
     }
 
-    // Get the resend count and time from localStorage
+    // Ambil jumlah dan waktu pengiriman ulang dari localStorage
     const storedCount = localStorage.getItem("resendCount")
     const storedTime = localStorage.getItem("lastResendTime")
 
@@ -36,12 +36,12 @@ export default function VerifyEmailPage() {
       const now = Date.now()
       const diff = now - lastTime
 
-      // If less than 60 seconds have passed, disable resend and show countdown
+      // Jika kurang dari 60 detik, nonaktifkan tombol kirim ulang
       if (diff < 60000) {
         setResendDisabled(true)
         setCountdown(Math.ceil((60000 - diff) / 1000))
 
-        // Start countdown timer
+        // Mulai hitung mundur
         const timer = setInterval(() => {
           setCountdown((prev) => {
             if (prev <= 1) {
@@ -58,10 +58,10 @@ export default function VerifyEmailPage() {
     }
   }, [])
 
-  // Function to resend verification email
+  // Fungsi untuk mengirim ulang email verifikasi
   async function resendVerificationEmail() {
     if (!email) {
-      setResendMessage("No email found. Please register again.")
+      setResendMessage("Email tidak ditemukan. Silakan daftar kembali.")
       return
     }
 
@@ -69,27 +69,27 @@ export default function VerifyEmailPage() {
     setResendMessage("")
 
     try {
-      // Check if we've hit the rate limit (2 emails per hour) [^3]
+      // Cek batas pengiriman (2 email per jam)
       const newCount = resendCount + 1
       if (newCount > 2) {
-        setResendMessage("You've reached the maximum number of resend attempts (2 per hour). Please try again later.")
+        setResendMessage("Anda telah mencapai batas pengiriman ulang (2 per jam). Silakan coba lagi nanti.")
         setIsResending(false)
         return
       }
 
-      // Send sign-up request again to trigger a new confirmation email
+      // Kirim permintaan pendaftaran ulang
       const { error } = await supabase.auth.signUp({
         email,
-        password: "PLACEHOLDER", // This won't be used as the user already exists
+        password: "PLACEHOLDER", // Tidak akan digunakan
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       })
 
       if (error) {
-        // If user already exists, this is expected
+        // Jika pengguna sudah terdaftar
         if (error.message.includes("already registered")) {
-          // Use OTP sign-in to send a new verification email
+          // Gunakan OTP untuk mengirim email verifikasi baru
           const { error: otpError } = await supabase.auth.signInWithOtp({
             email,
             options: {
@@ -100,12 +100,12 @@ export default function VerifyEmailPage() {
           if (otpError) {
             setResendMessage(`Error: ${otpError.message}`)
           } else {
-            // Update resend count and time
+            // Update jumlah dan waktu pengiriman
             setResendCount(newCount)
             localStorage.setItem("resendCount", newCount.toString())
             localStorage.setItem("lastResendTime", Date.now().toString())
 
-            // Disable resend button for 60 seconds
+            // Nonaktifkan tombol untuk 60 detik
             setResendDisabled(true)
             setCountdown(60)
 
@@ -120,18 +120,18 @@ export default function VerifyEmailPage() {
               })
             }, 1000)
 
-            setResendMessage("Verification email sent! Please check your inbox.")
+            setResendMessage("Email verifikasi telah dikirim! Silakan periksa inbox Anda.")
           }
         } else {
           setResendMessage(`Error: ${error.message}`)
         }
       } else {
-        // Update resend count and time
+        // Update jumlah dan waktu pengiriman
         setResendCount(newCount)
         localStorage.setItem("resendCount", newCount.toString())
         localStorage.setItem("lastResendTime", Date.now().toString())
 
-        // Disable resend button for 60 seconds
+        // Nonaktifkan tombol untuk 60 detik
         setResendDisabled(true)
         setCountdown(60)
 
@@ -146,11 +146,11 @@ export default function VerifyEmailPage() {
           })
         }, 1000)
 
-        setResendMessage("Verification email sent! Please check your inbox.")
+        setResendMessage("Email verifikasi telah dikirim! Silakan periksa inbox Anda.")
       }
     } catch (error) {
-      setResendMessage("An unexpected error occurred. Please try again.")
-      console.error("Error resending verification email:", error)
+      setResendMessage("Terjadi kesalahan. Silakan coba lagi.")
+      console.error("Gagal mengirim ulang email verifikasi:", error)
     } finally {
       setIsResending(false)
     }
@@ -163,18 +163,18 @@ export default function VerifyEmailPage() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-50">
             <Mail className="h-8 w-8 text-blue-500" />
           </div>
-          <CardTitle className="text-2xl font-bold">Verify Your Email</CardTitle>
+          <CardTitle className="text-2xl font-bold">Verifikasi Email Anda</CardTitle>
           <CardDescription className="text-gray-500">
-            We&lsquo;ve sent a verification link to {email || "your email"}
+            Kami telah mengirim tautan verifikasi ke {email || "email Anda"}
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center">
           <p className="mb-4">
-            Please check your inbox and click the verification link to complete your registration. If you don&#39;t see the
-            email, check your spam folder.
+            Silakan periksa inbox Anda dan klik tautan verifikasi untuk menyelesaikan pendaftaran. Jika tidak menemukan email,
+            periksa folder spam.
           </p>
           <div className="rounded-md bg-blue-50 p-4 text-sm text-blue-800">
-            <p>The verification link will expire after a period of time.</p>
+            <p>Tautan verifikasi akan kedaluwarsa setelah beberapa waktu.</p>
           </div>
 
           {resendMessage && (
@@ -189,7 +189,7 @@ export default function VerifyEmailPage() {
 
           {resendCount > 0 && (
             <div className="mt-4 text-sm text-gray-500">
-              <p>Resend attempts: {resendCount}/2 per hour</p>
+              <p>Percobaan pengiriman ulang: {resendCount}/2 per jam</p>
             </div>
           )}
         </CardContent>
@@ -201,17 +201,16 @@ export default function VerifyEmailPage() {
           >
             <RefreshCw className="h-4 w-4" />
             {isResending
-              ? "Sending..."
+              ? "Mengirim..."
               : resendDisabled
-                ? `Resend available in ${countdown}s`
-                : "Resend Verification Email"}
+                ? `Tunggu ${countdown} detik`
+                : "Kirim Ulang Email Verifikasi"}
           </Button>
           <Button variant="outline" className="w-full" asChild>
-            <Link href="/auth/register">Back to Registration</Link>
+            <Link href="/auth/register">Kembali ke Pendaftaran</Link>
           </Button>
         </CardFooter>
       </Card>
     </div>
   )
 }
-

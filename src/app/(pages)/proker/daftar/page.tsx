@@ -126,7 +126,7 @@ export default function ApprovedProgramsPage() {
       description: "Program berhasil dimulai",
       variant: "success",
     });
-    router.push(`/program-kerja/${updatedProgram.id}`);
+    // router.push(`/proker/detail/${updatedProgram.id}`);
   };
 
   const getStatusBadge = (status: string) => {
@@ -375,7 +375,7 @@ export default function ApprovedProgramsPage() {
                           <Button
                             className="w-full"
                             onClick={() =>
-                              router.push(`/proker/${program.id}/file`)
+                              router.push(`/proker/${program.id}/files`)
                             }
                           >
                             Liat File
